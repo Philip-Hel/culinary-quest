@@ -1,7 +1,6 @@
-
 🍽️ Culinary Quest
 A global food adventure — one country at a time.
-<p align="center"><img src="https://via.placeholder.com/200x200.png?text=Culinary+Quest" width="180" alt="Culinary Quest Logo"/></p>
+
 
 🏷️ Badges
 <p align="center">

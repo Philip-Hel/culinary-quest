@@ -1,19 +1,19 @@
-export default function CQCard({ children }) {
+export default function CQCard({ children, interactive = false, className = "" }) {
   return (
-    <div className="
-      bg-cq-surface 
-      dark:bg-cq-darkSurface 
-      border 
-      border-cq-border 
-      dark:border-cq-darkBorder 
-      rounded-xl 
-      shadow-cq 
-      dark:shadow-cqDark 
-      p-6 
-      transition-all 
-      duration-500 
-      animate-fadeIn
-    ">
+    <div
+      className={`
+        animate-fadeIn relative
+        bg-cq-surface dark:bg-cq-darkSurface
+        rounded-sm
+        shadow-cq dark:shadow-cqDark
+        ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60
+        transition-all duration-500 ease-cq-smooth
+        ${interactive ? "hover:-translate-y-1.5 hover:shadow-cq-lg dark:hover:shadow-cqDark-lg" : ""}
+        ${className}
+      `}
+    >
+      {/* fine upper hairline for a "printed sheet" feel */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cq-accentSoft/80 to-transparent" />
       {children}
     </div>
   );

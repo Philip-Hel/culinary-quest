@@ -1,30 +1,22 @@
-// Fetch all real countries (stable v3.1 endpoint)
+// Load the bundled country list.
+//
+// The public REST Countries API (restcountries.com/v3.1/all) was deprecated and
+// now requires its own API key, so we no longer call it. Instead we ship a
+// static snapshot (src/countries.json: name, ISO code, region, subregion) and
+// pull flag images from the free, keyless flagcdn.com CDN. This never breaks,
+// needs no key, and works offline.
+import countries from "./countries.json";
+
 export async function fetchRealCountries() {
   try {
-    const res = await fetch(
-      "https://restcountries.com/v3.1/all?fields=name,flags,region,subregion"
-    );
-
-    if (!res.ok) {
-      console.error("REST Countries error:", res.status, res.statusText);
-      return [];
-    }
-
-    const data = await res.json();
-
-    if (!Array.isArray(data)) {
-      console.error("REST Countries returned non-array:", data);
-      return [];
-    }
-
-    return data.map(c => ({
-      name: c.name.common,
-      flag: c.flags?.png,
+    return countries.map((c) => ({
+      name: c.name,
+      flag: `https://flagcdn.com/w80/${c.cca2.toLowerCase()}.png`,
       region: c.region,
-      subregion: c.subregion
+      subregion: c.subregion,
     }));
   } catch (err) {
-    console.error("FETCH FAILED:", err);
+    console.error("Failed to load country data:", err);
     return [];
   }
 }
@@ -37,7 +29,7 @@ export const cuisineMap = {
   "Andorra": "French",
   "Angola": "African",
   "Antigua and Barbuda": "Caribbean",
-  "Argentina": "American",
+  "Argentina": "Latin American",
   "Armenia": "Middle Eastern",
   "Australia": "British",
   "Austria": "German",
@@ -52,10 +44,10 @@ export const cuisineMap = {
   "Belize": "Caribbean",
   "Benin": "African",
   "Bhutan": "Indian",
-  "Bolivia": "American",
+  "Bolivia": "Latin American",
   "Bosnia and Herzegovina": "Croatian",
   "Botswana": "African",
-  "Brazil": "American",
+  "Brazil": "Latin American",
   "Brunei": "Malaysian",
   "Bulgaria": "Croatian",
   "Burkina Faso": "African",
@@ -67,12 +59,12 @@ export const cuisineMap = {
   "Canada": "Canadian",
   "Central African Republic": "African",
   "Chad": "African",
-  "Chile": "American",
+  "Chile": "Latin American",
   "China": "Chinese",
-  "Colombia": "American",
+  "Colombia": "Latin American",
   "Comoros": "African",
   "Congo": "African",
-  "Costa Rica": "American",
+  "Costa Rica": "Latin American",
   "Croatia": "Croatian",
   "Cuba": "Caribbean",
   "Cyprus": "Greek",
@@ -83,16 +75,16 @@ export const cuisineMap = {
   "Dominica": "Caribbean",
   "Dominican Republic": "Caribbean",
 
-  "Ecuador": "American",
+  "Ecuador": "Latin American",
   "Egypt": "Egyptian",
-  "El Salvador": "American",
+  "El Salvador": "Latin American",
   "Equatorial Guinea": "African",
   "Eritrea": "African",
   "Estonia": "Russian",
   "Eswatini": "African",
   "Ethiopia": "African",
 
-  "Fiji": "Asian",
+  "Fiji": "Australian",
   "Finland": "British",
   "France": "French",
 
@@ -103,13 +95,13 @@ export const cuisineMap = {
   "Ghana": "African",
   "Greece": "Greek",
   "Grenada": "Caribbean",
-  "Guatemala": "American",
+  "Guatemala": "Latin American",
   "Guinea": "African",
   "Guinea-Bissau": "African",
   "Guyana": "Caribbean",
 
   "Haiti": "Caribbean",
-  "Honduras": "American",
+  "Honduras": "Latin American",
   "Hungary": "Croatian",
 
   "Iceland": "British",
@@ -127,7 +119,7 @@ export const cuisineMap = {
 
   "Kazakhstan": "Russian",
   "Kenya": "Kenyan",
-  "Kiribati": "Asian",
+  "Kiribati": "Australian",
   "Korea (North)": "Japanese",
   "Korea (South)": "Japanese",
   "Kuwait": "Middle Eastern",
@@ -149,11 +141,11 @@ export const cuisineMap = {
   "Maldives": "Indian",
   "Mali": "African",
   "Malta": "Italian",
-  "Marshall Islands": "Asian",
+  "Marshall Islands": "Australian",
   "Mauritania": "African",
   "Mauritius": "African",
   "Mexico": "Mexican",
-  "Micronesia": "Asian",
+  "Micronesia": "Australian",
   "Moldova": "Russian",
   "Monaco": "French",
   "Mongolia": "Russian",
@@ -163,11 +155,11 @@ export const cuisineMap = {
   "Myanmar": "Thai",
 
   "Namibia": "African",
-  "Nauru": "Asian",
+  "Nauru": "Australian",
   "Nepal": "Indian",
   "Netherlands": "Dutch",
   "New Zealand": "British",
-  "Nicaragua": "American",
+  "Nicaragua": "Latin American",
   "Niger": "African",
   "Nigeria": "African",
   "North Macedonia": "Croatian",
@@ -176,11 +168,11 @@ export const cuisineMap = {
   "Oman": "Middle Eastern",
 
   "Pakistan": "Indian",
-  "Palau": "Asian",
-  "Panama": "American",
-  "Papua New Guinea": "Asian",
-  "Paraguay": "American",
-  "Peru": "American",
+  "Palau": "Australian",
+  "Panama": "Latin American",
+  "Papua New Guinea": "Australian",
+  "Paraguay": "Latin American",
+  "Peru": "Latin American",
   "Philippines": "Filipino",
   "Poland": "Polish",
   "Portugal": "Portuguese",
@@ -194,7 +186,7 @@ export const cuisineMap = {
   "Saint Kitts and Nevis": "Caribbean",
   "Saint Lucia": "Caribbean",
   "Saint Vincent and the Grenadines": "Caribbean",
-  "Samoa": "Asian",
+  "Samoa": "Australian",
   "San Marino": "Italian",
   "Sao Tome and Principe": "African",
   "Saudi Arabia": "Middle Eastern",
@@ -205,7 +197,7 @@ export const cuisineMap = {
   "Singapore": "Chinese",
   "Slovakia": "Croatian",
   "Slovenia": "Croatian",
-  "Solomon Islands": "Asian",
+  "Solomon Islands": "Australian",
   "Somalia": "African",
   "South Africa": "African",
   "South Sudan": "African",
@@ -221,26 +213,26 @@ export const cuisineMap = {
   "Tajikistan": "Russian",
   "Tanzania": "African",
   "Thailand": "Thai",
-  "Timor-Leste": "Asian",
+  "Timor-Leste": "Malaysian",
   "Togo": "African",
-  "Tonga": "Asian",
+  "Tonga": "Australian",
   "Trinidad and Tobago": "Caribbean",
   "Tunisia": "Tunisian",
   "Turkey": "Turkish",
   "Turkmenistan": "Russian",
-  "Tuvalu": "Asian",
+  "Tuvalu": "Australian",
 
   "Uganda": "African",
   "Ukraine": "Russian",
   "United Arab Emirates": "Middle Eastern",
   "United Kingdom": "British",
   "United States": "American",
-  "Uruguay": "American",
+  "Uruguay": "Latin American",
   "Uzbekistan": "Russian",
 
-  "Vanuatu": "Asian",
+  "Vanuatu": "Australian",
   "Vatican City": "Italian",
-  "Venezuela": "American",
+  "Venezuela": "Latin American",
   "Vietnam": "Vietnamese",
 
   "Yemen": "Middle Eastern",
@@ -249,13 +241,23 @@ export const cuisineMap = {
   "Zimbabwe": "African"
 };
 
-// Fetch recipes by cuisine
+// Fetch recipes by cuisine (MealDB "area")
 export async function fetchRecipesByCuisine(area) {
   const res = await fetch(
     `https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`
   );
   const data = await res.json();
-  return data.meals;
+  return data.meals || [];
+}
+
+// Fetch recipes by category — a non-empty fallback pool when a country's
+// cuisine/area returns no results.
+export async function fetchRecipesByCategory(category) {
+  const res = await fetch(
+    `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
+  );
+  const data = await res.json();
+  return data.meals || [];
 }
 
 // Fetch full recipe details

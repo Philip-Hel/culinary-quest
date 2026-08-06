@@ -7,11 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# ZCode internal state
+.zcode/
+
 node_modules
 dist
 dist-ssr
 *.local
 .env
+.env.bak
+*.env.bak
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

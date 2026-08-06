@@ -350,33 +350,80 @@ export function resolveSpoonacularKeywords({ name, region, subregion }) {
 }
 
 // Map a country to the region tags used by the bundled offline recipe pool
-// (src/recipes.json). Live sources are primary; these tags decide which curated
-// offline dishes are available as a fallback for the gaps live APIs don't cover.
+// (src/recipes.json). Every subregion (verified from countries.json) resolves to
+// an offline tag so no country is left without a curated fallback. Live sources
+// stay primary; these tags decide which offline dishes are available.
 const REGION_TAGS = {
-  // Pacific / Oceania
+  // Oceania
   polynesia: "pacific",
   melanesia: "pacific",
   micronesia: "pacific",
   oceania: "pacific",
+  "australia and new zealand": "australasia",
   // Africa
   "western africa": "west-africa",
   "middle africa": "west-africa",
   "eastern africa": "east-africa",
-  "southern africa": "east-africa",
+  "southern africa": "southern-africa",
   "northern africa": "north-africa",
   // Americas
   caribbean: "caribbean",
-  "south america": "latin-america",
-  "central america": "latin-america",
-  // Middle East (only when cuisine concept is Middle Eastern, else generic)
+  "central america": "central-america",
+  "south america": "south-america",
+  "north america": "north-america",
+  // Europe
+  "northern europe": "north-europe",
+  "western europe": "west-europe",
+  "southern europe": "south-europe",
+  "eastern europe": "east-europe",
+  "central europe": "east-europe",
+  "southeast europe": "east-europe",
+  // Asia
   "western asia": "middle-east",
+  "central asia": "central-asia",
+  "southern asia": "south-asia",
+  "south-eastern asia": "southeast-asia",
+  "eastern asia": "east-asia",
+  // top-level regions
+  asia: "east-asia",
+  africa: "east-africa",
+  europe: "south-europe",
+  americas: "south-america",
+  antarctic: "pacific",
 };
 
+// Cuisine-concept fallback tags (only used when the geographic subregion didn't
+// give a specific tag). These broaden coverage so no country is empty.
 const CONCEPT_REGION_TAG = {
-  African: ["east-africa", "west-africa"],
+  African: ["east-africa", "west-africa", "southern-africa"],
   Caribbean: ["caribbean"],
-  "Latin American": ["latin-america"],
+  "Latin American": ["south-america", "central-america", "caribbean"],
   "Middle Eastern": ["middle-east"],
+  "American": ["north-america"],
+  "Indian": ["south-asia"],
+  "Asian": ["east-asia", "southeast-asia"],
+  French: ["west-europe"],
+  German: ["east-europe"],
+  British: ["west-europe", "north-europe"],
+  Spanish: ["south-europe"],
+  Portuguese: ["south-europe"],
+  Italian: ["south-europe"],
+  Greek: ["south-europe"],
+  Russian: ["east-europe"],
+  Polish: ["east-europe"],
+  Croatian: ["east-europe"],
+  Dutch: ["west-europe"],
+  Irish: ["west-europe"],
+  Australian: ["australasia", "pacific"],
+  Japanese: ["east-asia"],
+  Chinese: ["east-asia"],
+  Korean: ["east-asia"],
+  Thai: ["southeast-asia"],
+  Vietnamese: ["southeast-asia"],
+  Malaysian: ["southeast-asia"],
+  Indonesian: ["southeast-asia"],
+  Filipino: ["southeast-asia"],
+  Mexican: ["central-america"],
 };
 
 export function resolveOfflineRegions({ name, region, subregion }) {

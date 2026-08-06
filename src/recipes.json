@@ -1,220 +1,110 @@
 {
-  "_comment": "Bundled offline recipe pool. Live APIs (TheMealDB / Spoonacular) are tried first; these cover cuisines those APIs barely or don't cover at all (Pacific islands, regional African, Latin American, etc.). Show a generic dish name + image via free CDN where possible. regions[] drives matching in src/offline.js.",
+  "_comment": "Bundled offline recipe pool — curated dishes for every region. Live APIs (TheMealDB / Spoonacular / Edamam) are tried first; these guarantee coverage for cuisines live sources cover thinly or not at all, including regions no free API touches. regions[] are matched in src/offline.js via resolveOfflineRegions. Offline = keyless, always available, no network; refresh by regenerating this file and committing.",
   "recipes": [
-    {
-      "id": "off-pac-1",
-      "name": "Kokoda (Raw Fish in Coconut)",
-      "regions": ["pacific"],
-      "countryHint": "Fiji, Samoa, Tonga, Cook Islands, Tuvalu",
-      "image": "https://pinchofnom.com/wp-content/uploads/2022/06/Kokoda-16-720x720.jpg",
-      "ingredients": ["500g firm white fish", "coconut milk", "lime juice", "chilli", "onion", "tomato", "coriander"],
-      "instructions": "Dice the fish finely and marinate in lime juice until the flesh is 'cooked'. Add coconut milk, chilli, onion, tomato and coriander. Chill and serve cold.",
-      "category": "Pacific"
-    },
-    {
-      "id": "off-pac-2",
-      "name": "Palusami (Taro Leaves in Coconut Cream)",
-      "regions": ["pacific"],
-      "countryHint": "Samoa, Tonga, Fiji",
-      "image": "https://img-global.cpcdn.com/recipes/d75ecdfe63e3c05f/1200x630cq70/photo.jpg",
-      "ingredients": ["taro leaves", "coconut cream", "onion", "corned beef or fish (optional)", "salt"],
-      "instructions": "Wilt taro leaves, stir in warm coconut cream and onion. Wrap portions in taro leaves to form parcels and bake or steam until tender.",
-      "category": "Pacific"
-    },
-    {
-      "id": "off-pac-3",
-      "name": "Ota Ika",
-      "regions": ["pacific", "polynesia"],
-      "countryHint": "Tonga, Samoa, Fiji",
-      "image": "https://www.196flavors.com/wp-content/uploads/2016/03/Ota-ika-2.jpg",
-      "ingredients": ["raw fish", "lemon or lime juice", "coconut milk", "cucumber", "tomato", "chilli", "onion"],
-      "instructions": "Marinate cubed raw fish in citrus juice. Toss with coconut milk, cucumber, tomato, chilli and onion. Serve chilled as a starter.",
-      "category": "Pacific"
-    },
-    {
-      "id": "off-pac-4",
-      "name": "Cassava Cake (Kumala)",
-      "regions": ["pacific", "melanesia"],
-      "countryHint": "Papua New Guinea, Solomon Islands, Fiji",
-      "image": "https://cdn.tasteatlas.com/images/dishes/2000/9bc42ebde43d4c379830af915f371a7f.jpg",
-      "ingredients": ["grated cassava", "coconut milk", "sugar", "butter", "egg"],
-      "instructions": "Mix grated cassava with coconut milk, sugar, butter and egg. Bake until set and golden. Serve warm.",
-      "category": "Pacific"
-    },
-    {
-      "id": "off-pac-5",
-      "name": "Poke-style Raw Fish (Nagasari)",
-      "regions": ["pacific"],
-      "countryHint": "Hawaii-style, but a common island staple",
-      "image": "https://www.allrecipes.com/thmb/LyJvLTfLtOCY6lv7gKU9MRDl8Js=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/12067-ahi-tuna-poke-ddmfs-4x3-6333d0fbc9ec48a6a66e7a5c9b1b4d1f.jpg",
-      "ingredients": ["tuna", "soy sauce", "sesame oil", "onion", "seaweed", "chilli"],
-      "instructions": "Cube fresh tuna and toss with soy, sesame oil, onion, seaweed and chilli. Serve chilled.",
-      "category": "Pacific"
-    },
+    { "id": "off-pac-1", "name": "Kokoda (Raw Fish in Coconut)", "regions": ["pacific"], "countryHint": "Fiji, Samoa, Tonga, Cook Islands, Tuvalu", "image": "", "ingredients": ["500g firm white fish", "coconut milk", "lime juice", "chilli", "onion", "tomato", "coriander"], "instructions": "Dice the fish finely and marinate in lime juice until the flesh turns opaque. Add coconut milk, chilli, onion, tomato and coriander. Chill and serve cold.", "category": "Pacific" },
+    { "id": "off-pac-2", "name": "Palusami (Taro Leaves in Coconut Cream)", "regions": ["pacific"], "countryHint": "Samoa, Tonga, Fiji", "image": "", "ingredients": ["taro leaves", "coconut cream", "onion", "corned beef or fish (optional)", "salt"], "instructions": "Wilt taro leaves, stir in warm coconut cream and onion. Wrap portions into parcels and bake or steam until tender.", "category": "Pacific" },
+    { "id": "off-pac-3", "name": "Ota Ika", "regions": ["pacific"], "countryHint": "Tonga, Samoa, Fiji", "image": "", "ingredients": ["raw fish", "lemon or lime juice", "coconut milk", "cucumber", "tomato", "chilli", "onion"], "instructions": "Marinate cubed raw fish in citrus juice. Toss with coconut milk, cucumber, tomato, chilli and onion. Serve chilled.", "category": "Pacific" },
+    { "id": "off-pac-4", "name": "Kumala (Cassava) Cake", "regions": ["pacific"], "countryHint": "Papua New Guinea, Solomon Islands, Fiji", "image": "", "ingredients": ["grated cassava", "coconut milk", "sugar", "butter", "egg"], "instructions": "Mix grated cassava with coconut milk, sugar, butter and egg. Bake until set and golden. Serve warm.", "category": "Pacific" },
+    { "id": "off-pac-5", "name": "Grilled Reef Fish with Lime", "regions": ["pacific"], "countryHint": "Melanesia, Polynesia", "image": "", "ingredients": ["whole reef fish", "lime", "garlic", "ginger", "coconut oil", "salt"], "instructions": "Score the fish, rub with garlic, ginger and lime, then grill over coals until charred and flaking. Finish with lime juice.", "category": "Pacific" },
 
-    {
-      "id": "off-waf-1",
-      "name": "Jollof Rice",
-      "regions": ["west-africa"],
-      "countryHint": "Nigeria, Ghana, Senegal",
-      "image": "https://www.kilimango.com/wp-content/uploads/2024/10/Nigerian-Jollof-Rice-Featured-Image.jpg",
-      "ingredients": ["long-grain rice", "tomato", "onion", "scotch bonnet", "pepper", "oil", "stock", "seasoning"],
-      "instructions": "Blend tomatoes, pepper and onion into a smooth paste. Fry, add stock and rice, cover and cook until the rice is steamed and smoky.",
-      "category": "West African"
-    },
-    {
-      "id": "off-waf-2",
-      "name": "Groundnut/Peanut Stew (Mafé)",
-      "regions": ["west-africa"],
-      "countryHint": "Senegal, Mali, Gambia",
-      "image": "https://www.simplyrecipes.com/thmb/7jGbZ9Mb0n2V2zQlmHzU8Nn3e6E=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Peanut-Stew-LEAD-1-1920x1280.jpg",
-      "ingredients": ["chicken or beef", "peanut butter", "onion", "tomato", "stock", "sweet potato", "cabbage"],
-      "instructions": "Braise the meat with onion and tomato, add stock and peanut butter, then simmer with root vegetables until thick and rich.",
-      "category": "West African"
-    },
-    {
-      "id": "off-waf-3",
-      "name": "Okra Stew",
-      "regions": ["west-africa"],
-      "countryHint": "Nigeria, Ghana",
-      "image": "https://www.africanbites.com/wp-content/uploads/2020/06/okra-soup-3-500x375.jpg",
-      "ingredients": ["okra", "meat or fish", "onion", "pepper", "palm or vegetable oil", "stock"],
-      "instructions": "Slice okra and simmer with meat, stock and seasoning until the soup turns silky and thick. Serve with fufu.",
-      "category": "West African"
-    },
-    {
-      "id": "off-waf-4",
-      "name": "Egusi Soup",
-      "regions": ["west-africa"],
-      "countryHint": "Nigeria, Ghana",
-      "image": "https://chefjar.com/wp-content/uploads/2021/12/Egusi-Soup-8-500x500.jpg",
-      "ingredients": ["ground melon seed (egusi)", "palm oil", "leafy greens", "meat or fish", "onion", "pepper", "stock"],
-      "instructions": "Toast egusi and whisk into palm oil with stock. Add meat, season, then fold in greens and simmer until thick.",
-      "category": "West African"
-    },
+    { "id": "off-aus-1", "name": "Lamb Barbecue ('Barbie')", "regions": ["australasia"], "countryHint": "Australia, New Zealand", "image": "", "ingredients": ["lamb chops", "olive oil", "rosemary", "garlic", "salt", "pepper"], "instructions": "Season lamb with oil, rosemary and garlic. Grill over high heat until charred outside and pink within. Rest before serving.", "category": "Australasian" },
+    { "id": "off-aus-2", "name": "Pavlova", "regions": ["australasia"], "countryHint": "Australia, New Zealand", "image": "", "ingredients": ["egg whites", "sugar", "cornflour", "vinegar", "cream", "kiwifruit or berries"], "instructions": "Whisk egg whites with sugar to stiff peaks, fold in cornflour and vinegar, and bake low until crisp outside, soft inside. Top with cream and fruit.", "category": "Australasian" },
+    { "id": "off-aus-3", "name": "Anzac Biscuits", "regions": ["australasia"], "countryHint": "Australia, New Zealand", "image": "", "ingredients": ["rolled oats", "flour", "desiccated coconut", "butter", "golden syrup", "bicarbonate of soda"], "instructions": "Melt butter with golden syrup and soda, mix into a dough with oats, flour and coconut. Bake in small rounds until golden and chewy.", "category": "Australasian" },
+    { "id": "off-aus-4", "name": "Fish and Chips", "regions": ["australasia", "west-europe"], "countryHint": "Australia, UK", "image": "", "ingredients": ["white fish fillets", "flour", "beer", "potatoes", "lemon", "salt"], "instructions": "Make a beer batter, coat fish fillets and deep-fry until crisp. Chip and fry the potatoes. Serve with lemon.", "category": "Australasian" },
 
-    {
-      "id": "off-eaf-1",
-      "name": "Ugali and Sukuma Wiki",
-      "regions": ["east-africa"],
-      "countryHint": "Kenya, Tanzania, Uganda",
-      "image": "https://www.budgetbytes.com/wp-content/uploads/2021/01/Ugali-vegetables-2.jpg",
-      "ingredients": ["maize (corn) flour", "water", "collard greens (sukuma)", "onion", "tomato", "oil"],
-      "instructions": "Make a stiff cornmeal porridge (ugali). Separately sauté collard greens with onion and tomato. Serve the greens alongside the ugali.",
-      "category": "East African"
-    },
-    {
-      "id": "off-eaf-2",
-      "name": "Doro Wat (Spicy Chicken Stew)",
-      "regions": ["east-africa"],
-      "countryHint": "Ethiopia, Eritrea",
-      "image": "https://www.daringgourmet.com/wp-content/uploads/2015/12/Doro-Wat-4.jpg",
-      "ingredients": ["chicken", "berbere spice", "onion", "ginger", "niter kibbeh (spiced butter)", "hard-boiled eggs"],
-      "instructions": "Slowly caramelise onion, add berbere and spiced butter, then braise chicken. Add boiled eggs and simmer until the sauce turns deep red.",
-      "category": "East African"
-    },
-    {
-      "id": "off-eaf-3",
-      "name": "Samosa",
-      "regions": ["east-africa", "north-africa"],
-      "countryHint": "Kenya, Tanzania common street food",
-      "image": "https://www.recipetineats.com/wp-content/uploads/2017/03/Chicken-Samosas-4.jpg",
-      "ingredients": ["flour pastry", "minced beef or vegetables", "onion", "spices", "oil for frying"],
-      "instructions": "Fill pastry triangles with spiced mince, seal and deep-fry until golden and crisp.",
-      "category": "East African"
-    },
+    { "id": "off-waf-1", "name": "Jollof Rice", "regions": ["west-africa"], "countryHint": "Nigeria, Ghana, Senegal", "image": "", "ingredients": ["long-grain rice", "tomato", "onion", "scotch bonnet", "pepper", "oil", "stock", "seasoning"], "instructions": "Blend tomatoes, pepper and onion to a smooth paste. Fry down, add stock and rice, cover and steam until smoky and separate.", "category": "West African" },
+    { "id": "off-waf-2", "name": "Groundnut Peanut Stew (Mafé)", "regions": ["west-africa"], "countryHint": "Senegal, Mali, Gambia", "image": "", "ingredients": ["chicken or beef", "peanut butter", "onion", "tomato", "stock", "sweet potato", "cabbage"], "instructions": "Braise meat with onion and tomato, add stock and peanut butter, then simmer with root vegetables until thick and rich.", "category": "West African" },
+    { "id": "off-waf-3", "name": "Okra Stew", "regions": ["west-africa"], "countryHint": "Nigeria, Ghana", "image": "", "ingredients": ["okra", "meat or fish", "onion", "pepper", "oil", "stock"], "instructions": "Slice okra and simmer with meat, stock and seasoning until silky and thick. Serve with fufu or rice.", "category": "West African" },
+    { "id": "off-waf-4", "name": "Egusi Soup", "regions": ["west-africa"], "countryHint": "Nigeria, Ghana", "image": "", "ingredients": ["ground melon seed (egusi)", "palm oil", "leafy greens", "meat or fish", "onion", "pepper", "stock"], "instructions": "Whisk egusi into palm oil and stock, add meat and season. Fold in greens and simmer until thick.", "category": "West African" },
+    { "id": "off-waf-5", "name": "Thiéboudienne (Fish and Rice)", "regions": ["west-africa"], "countryHint": "Senegal", "image": "", "ingredients": ["whole fish", "rice", "tomato", "onion", "carrot", "cabbage", "chilli", "fish stock"], "instructions": "Stuff fish with aromatics, fry lightly, then build a tomato broth with vegetables. Poach the fish and cook rice in the broth.", "category": "West African" },
 
-    {
-      "id": "off-car-1",
-      "name": "Pepperpot (Guyana-Style Stew)",
-      "regions": ["caribbean"],
-      "countryHint": "Guyana, Caribbean",
-      "image": "https://shersfoods.com/wp-content/uploads/2017/12/Pepperpot-Stew.jpg",
-      "ingredients": ["beef or pork", "cassareep", "wiri wiri or chilli pepper", "cinnamon", "cloves", "brown sugar"],
-      "instructions": "Brown the meat, add cassareep, spices and enough water to cover, then simmer slowly for hours until dark and velvety.",
-      "category": "Caribbean"
-    },
-    {
-      "id": "off-car-2",
-      "name": "Callaloo",
-      "regions": ["caribbean"],
-      "countryHint": "Trinidad, Jamaica, throughout the Caribbean",
-      "image": "https://www.simplyrecipes.com/thmb/P6GlIVLwxVUz5KU7VJwH9HZ0j1Y=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Callaloo-Soup-LEAD-4-1920x1280.jpg",
-      "ingredients": ["callaloo or spinach", "okra", "coconut milk", "onion", "scotch bonnet", "crab or saltfish (optional)"],
-      "instructions": "Simmer greens and okra in coconut milk with seasoning, then blend until smooth and thick. Finish with flaked fish or crab.",
-      "category": "Caribbean"
-    },
+    { "id": "off-eaf-1", "name": "Ugali and Sukuma Wiki", "regions": ["east-africa"], "countryHint": "Kenya, Tanzania, Uganda", "image": "", "ingredients": ["maize flour", "water", "collard greens", "onion", "tomato", "oil"], "instructions": "Make a stiff cornmeal porridge (ugali). Sauté collard greens with onion and tomato. Serve alongside.", "category": "East African" },
+    { "id": "off-eaf-2", "name": "Doro Wat (Spicy Chicken Stew)", "regions": ["east-africa"], "countryHint": "Ethiopia, Eritrea", "image": "", "ingredients": ["chicken", "berbere spice", "onion", "ginger", "spiced butter", "hard-boiled eggs"], "instructions": "Slowly caramelise onion, add berbere and spiced butter, then braise chicken. Add boiled eggs and simmer until deep red.", "category": "East African" },
+    { "id": "off-eaf-3", "name": "Nyama Choma (Grilled Meat)", "regions": ["east-africa", "southern-africa"], "countryHint": "Kenya, East & Southern Africa", "image": "", "ingredients": ["goat or beef", "onion", "ginger", "garlic", "lime", "salt", "chilli"], "instructions": "Marinate meat in onion, ginger, garlic and lime; grill over coals until charred. Serve with kachumbari salad.", "category": "East African" },
+    { "id": "off-eaf-4", "name": "Matoke (Steamed Plantain)", "regions": ["east-africa"], "countryHint": "Uganda, Tanzania", "image": "", "ingredients": ["green plantain", "onion", "peanut butter", "tomato", "oil", "salt"], "instructions": "Steam peeled plantain until soft. Make a light peanut and tomato sauce and serve over the mashed plantain.", "category": "East African" },
 
-    {
-      "id": "off-lat-1",
-      "name": "Empanadas",
-      "regions": ["latin-america"],
-      "countryHint": "Argentina, Colombia, Chile",
-      "image": "https://www.simplyrecipes.com/thmb/P6GlIVLwxVUz5KU7VJwH9HZ0j1Y=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Empanadas-LEAD-01-1920x1280.jpg",
-      "ingredients": ["flour pastry", "ground beef", "onion", "olives", "hard-boiled egg", "spices"],
-      "instructions": "Fill pastry with seasoned beef, onion, olives and egg, fold into half-moons, seal and bake or fry until golden.",
-      "category": "Latin American"
-    },
-    {
-      "id": "off-lat-2",
-      "name": "Ceviche",
-      "regions": ["latin-america"],
-      "countryHint": "Peru, Ecuador, Chile",
-      "image": "https://www.allrecipes.com/thmb/E1-9GRhPtKu78wPD9IzTbN-5iIc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/19756-easy-ceviche-DDMFS-4x3-e5a8d0d7c1f64cfa8b02e91d51b9d9d3.jpg",
-      "ingredients": ["white fish", "lime juice", "red onion", "coriander", "chilli", "sweet potato or corn"],
-      "instructions": "Marinate cubed fish in lime until barely cooked by the acid. Toss with onion, coriander and chilli. Serve chilled.",
-      "category": "Latin American"
-    },
-    {
-      "id": "off-lat-3",
-      "name": "Arepas",
-      "regions": ["latin-america", "caribbean"],
-      "countryHint": "Venezuela, Colombia",
-      "image": "https://www.allrecipes.com/thmb/2mxKw6oV5B3g1Jj5g2NxWcN9q6M=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/8577690-arepas-lolibeth-4x3-1-c65a94a29d034cfca4dc6e1dfe5a5b28.jpg",
-      "ingredients": ["pre-cooked white cornmeal (masarepa)", "water", "salt", "oil", "filling of choice"],
-      "instructions": "Mix cornmeal with salted water to a soft dough, shape into rounds and cook on a hot griddle until crisp outside and fluffy inside.",
-      "category": "Latin American"
-    },
-    {
-      "id": "off-lat-4",
-      "name": "Feijoada (Black Bean Stew)",
-      "regions": ["latin-america"],
-      "countryHint": "Brazil",
-      "image": "https://www.seriouseats.com/thmb/D0HoTGgUJhPZ1c0n4nYP1v9C4r0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/20211202-serious-eats-frijoles-negros-ricos-feijoada-lazy-2.jpg",
-      "ingredients": ["black beans", "smoked pork or sausage", "garlic", "onion", "bay leaf", "orange"],
-      "instructions": "Simmer black beans with smoked pork, garlic, onion and bay until thick. Serve with rice and an orange slice.",
-      "category": "Latin American"
-    },
+    { "id": "off-saf-1", "name": "Pap (Maize Porridge) and Chakalaka", "regions": ["southern-africa"], "countryHint": "South Africa, Zimbabwe, Zambia", "image": "", "ingredients": ["maize meal", "water", "onion", "tomato", "carrot", "beans", "chilli", "oil"], "instructions": "Cook maize meal to a soft porridge (pap). Sauté vegetables with beans and chilli for chakalaka. Serve together.", "category": "Southern African" },
+    { "id": "off-saf-2", "name": "Bunny Chow (Curry in Hollow Bread)", "regions": ["southern-africa"], "countryHint": "South Africa (Durban)", "image": "", "ingredients": ["loaf of bread", "curried chicken or beans", "onion", "potato", "curry powder", "stock"], "instructions": "Hash the centre out of a half-loaf, fill with spicy meat-and-potato curry, and serve with the bread torn for dipping.", "category": "Southern African" },
+    { "id": "off-saf-3", "name": "Sadza with Greens", "regions": ["southern-africa"], "countryHint": "Zimbabwe, Zambia, Malawi", "image": "", "ingredients": ["maize meal", "water", "leafy greens", "groundnut powder", "onion", "tomato"], "instructions": "Stir maize meal into boiling water to a smooth stiff dough (sadza). Cook greens with groundnut and tomato to serve over it.", "category": "Southern African" },
 
-    {
-      "id": "off-me-1",
-      "name": "Kabsa (Spiced Rice and Chicken)",
-      "regions": ["middle-east"],
-      "countryHint": "Saudi Arabia, Gulf states",
-      "image": "https://www.goldengirlkitchen.com/wp-content/uploads/2022/04/Kabsa-Chicken-14.jpg",
-      "ingredients": ["chicken", "basmati rice", "tomato", "onion", "kabsa spice mix", "cardamom", "cloves"],
-      "instructions": "Braise chicken with onion, tomato and kabsa spices. Cook basmati rice in the rich stock and serve beneath the chicken.",
-      "category": "Middle Eastern"
-    },
-    {
-      "id": "off-me-2",
-      "name": "Mansaf",
-      "regions": ["middle-east"],
-      "countryHint": "Jordan, Palestine, Iraq",
-      "image": "https://cdn.tasteatlas.com/images/dishes/2000/b6ac90c8fce74b7f8e0e9c3e6f4e9d1e.jpg",
-      "ingredients": ["lamb", "jameed (dried yogurt)", "rice", "pine nuts", "flatbread", "ghee"],
-      "instructions": "Simmer lamb in a jameed-yogurt broth until tender. Layer rice and lamb on flatbread and pour the broth over, scattering pine nuts.",
-      "category": "Middle Eastern"
-    },
-    {
-      "id": "off-me-3",
-      "name": "Khoresht Gheymeh (Yellow Split-Pea Stew)",
-      "regions": ["middle-east"],
-      "countryHint": "Iran",
-      "image": "https://www.tashasartisanfoods.com/blog/wp-content/uploads/2019/05/Khoresht-Gheymeh.jpg",
-      "ingredients": ["lamb or beef", "yellow split peas", "tomato", "dried lime (limoo)", "onion", "potato", "saffron"],
-      "instructions": "Brown meat with onion, add split peas, tomato and dried lime; simmer until tender. Top with saffron and crispy potato chips.",
-      "category": "Middle Eastern"
-    }
+    { "id": "off-naf-1", "name": "Couscous with Seven Vegetables", "regions": ["north-africa"], "countryHint": "Morocco, Algeria, Tunisia", "image": "", "ingredients": ["couscous", "carrot", "courgette", "pumpkin", "tomato", "onion", "chickpeas", "spices"], "instructions": "Steam couscous over a fragrant vegetable and chickpea stew until fluffy. Serve the stew over the couscous.", "category": "North African" },
+    { "id": "off-naf-2", "name": "Shakshuka", "regions": ["north-africa", "middle-east"], "countryHint": "Tunisia, Algeria, North Africa", "image": "", "ingredients": ["eggs", "tomato", "pepper", "onion", "garlic", "chilli", "cumin", "paprika"], "instructions": "Reduce tomatoes and peppers with cumin and paprika to a thick base. Poach eggs in the sauce until set, and serve hot.", "category": "North African" },
+    { "id": "off-naf-3", "name": "Brik (Crisp Fried Pastry)", "regions": ["north-africa"], "countryHint": "Tunisia", "image": "", "ingredients": ["thin pastry (warka)", "egg", "tuna", "onion", "parsley", "lemon", "oil"], "instructions": "Fill crisp pastry triangles with a tuna-egg mixture, fold and deep-fry until golden. Squeeze lemon over before eating.", "category": "North African" },
+
+    { "id": "off-car-1", "name": "Pepperpot (Guyana-Style)", "regions": ["caribbean"], "countryHint": "Guyana, Caribbean", "image": "", "ingredients": ["beef or pork", "cassareep", "wiri wiri or chilli", "cinnamon", "cloves", "brown sugar"], "instructions": "Brown the meat, add cassareep, spices and water to cover, then simmer slowly for hours until dark and velvety.", "category": "Caribbean" },
+    { "id": "off-car-2", "name": "Callaloo", "regions": ["caribbean"], "countryHint": "Trinidad, Jamaica", "image": "", "ingredients": ["callaloo or spinach", "okra", "coconut milk", "onion", "scotch bonnet", "crab or saltfish"], "instructions": "Simmer greens and okra in coconut milk with seasoning, blend smooth, then finish with flaked fish or crab.", "category": "Caribbean" },
+    { "id": "off-car-3", "name": "Rice and Peas", "regions": ["caribbean"], "countryHint": "Jamaica, Caribbean", "image": "", "ingredients": ["rice", "kidney beans", "coconut milk", "thyme", "scallion", "garlic", "scotch bonnet"], "instructions": "Simmer rice with beans, coconut milk and aromatics until tender and fragrant. Serve with jerk meats or stews.", "category": "Caribbean" },
+    { "id": "off-car-4", "name": "Roti with Curry (Doubles)", "regions": ["caribbean"], "countryHint": "Trinidad, Guyana", "image": "", "ingredients": ["flour", "split peas", "turmeric", "cumin", "chilli", "curry powder"], "instructions": "Make a soft flatbread (roti), fill or top with curried chickpeas and chilli. Roll up and serve warm.", "category": "Caribbean" },
+
+    { "id": "off-lat-1", "name": "Empanadas", "regions": ["central-america", "south-america"], "countryHint": "Argentina, Colombia, Chile", "image": "", "ingredients": ["flour pastry", "ground beef", "onion", "olives", "hard-boiled egg", "spices"], "instructions": "Fill pastry with seasoned beef, onion, olives and egg, fold into half-moons, seal and bake or fry until golden.", "category": "Latin American" },
+    { "id": "off-lat-2", "name": "Ceviche", "regions": ["south-america", "central-america"], "countryHint": "Peru, Ecuador, Chile", "image": "", "ingredients": ["white fish", "lime juice", "red onion", "coriander", "chilli", "sweet potato or corn"], "instructions": "Marinate cubed fish in lime until barely cooked by the acid. Toss with onion, coriander and chilli. Serve chilled.", "category": "Latin American" },
+    { "id": "off-lat-3", "name": "Arepas", "regions": ["south-america", "caribbean"], "countryHint": "Venezuela, Colombia", "image": "", "ingredients": ["pre-cooked cornmeal", "water", "salt", "oil", "filling of choice"], "instructions": "Mix cornmeal with salted water to a soft dough, shape into rounds and cook on a hot griddle until crisp outside, fluffy inside.", "category": "Latin American" },
+    { "id": "off-lat-4", "name": "Feijoada (Black Bean Stew)", "regions": ["south-america"], "countryHint": "Brazil", "image": "", "ingredients": ["black beans", "smoked pork or sausage", "garlic", "onion", "bay leaf", "orange"], "instructions": "Simmer black beans with smoked pork, garlic, onion and bay until thick. Serve with rice and an orange slice.", "category": "Latin American" },
+    { "id": "off-lat-5", "name": "Gallopinto (Rice and Beans)", "regions": ["central-america"], "countryHint": "Nicaragua, Costa Rica, El Salvador", "image": "", "ingredients": ["rice", "red or black beans", "onion", "garlic", "capsicum", "coriander", "smoke paprika"], "instructions": "Sauté rice with onion, garlic and pepper, add beans and stock, and cook until tender. Sprinkle with coriander.", "category": "Latin American" },
+    { "id": "off-lat-6", "name": "Lomo Saltado", "regions": ["south-america"], "countryHint": "Peru", "image": "", "ingredients": ["beef strips", "soy sauce", "onion", "tomato", "potato", "chilli", "rice"], "instructions": "Stir-fry beef with soy, onion, tomato and chilli; add fried potatoes and serve over rice.", "category": "Latin American" },
+    { "id": "off-lat-7", "name": "Bandeja Paisa", "regions": ["south-america"], "countryHint": "Colombia", "image": "", "ingredients": ["rice", "red beans", "ground beef", "chicharrón", "egg", "plantain", "arepa", "avocado"], "instructions": "Plate rice, beans, seasoned beef, fried egg, plantain, a crispy arepa and avocado for a hearty platter.", "category": "Latin American" },
+
+    { "id": "off-na-1", "name": "Fajitas", "regions": ["north-america"], "countryHint": "Mexico-adjacent / United States", "image": "", "ingredients": ["chicken or steak", "peppers", "onion", "flour tortillas", "lime", "spices"], "instructions": "Slice meat and vegetables, season and sear in a hot pan. Serve in warm tortillas with lime.", "category": "North American" },
+    { "id": "off-na-2", "name": "Macaroni and Cheese", "regions": ["north-america"], "countryHint": "United States", "image": "", "ingredients": ["macaroni", "cheddar", "milk", "butter", "flour", "breadcrumbs"], "instructions": "Make a cheese sauce with butter, flour and milk, fold in cooked macaroni, top with crumbs and bake until golden.", "category": "North American" },
+    { "id": "off-na-3", "name": "Poutine", "regions": ["north-america"], "countryHint": "Canada (Quebec)", "image": "", "ingredients": ["fries", "cheese curds", "gravy"], "instructions": "Pile hot fries, scatter cheese curds and pour over warm gravy so the cheese softens.", "category": "North American" },
+    { "id": "off-na-4", "name": "Tex-Mex Chili", "regions": ["north-america"], "countryHint": "United States (Texas)", "image": "", "ingredients": ["beef", "kidney beans", "tomato", "onion", "garlic", "chilli powder", "cumin"], "instructions": "Brown beef, add beans, tomato and spices, and simmer low until thick and fragrant.", "category": "North American" },
+
+    { "id": "off-neu-1", "name": "Swedish Meatballs (Köttbullar)", "regions": ["north-europe"], "countryHint": "Sweden", "image": "", "ingredients": ["minced beef and pork", "breadcrumbs", "milk", "onion", "allspice", "cream sauce"], "instructions": "Mix meat with soaked breadcrumbs, onion and spice; roll into balls and fry. Serve with a creamy sauce and lingonberry.", "category": "Nordic" },
+    { "id": "off-neu-2", "name": "Fish Pie (Fiskegrateng)", "regions": ["north-europe"], "countryHint": "Norway", "image": "", "ingredients": ["white fish", "potatoes", "béchamel", "milk", "breadcrumbs", "butter"], "instructions": "Layer flaked fish and potato, cover with béchamel, breadcrumb and bake until bubbling and golden.", "category": "Nordic" },
+    { "id": "off-neu-3", "name": "Herring in Cream", "regions": ["north-europe"], "countryHint": "Sweden, Denmark", "image": "", "ingredients": ["pickled herring", "sour cream", "red onion", "dill", "apple"], "instructions": "Fold chopped herring into sour cream with onion, apple and dill. Serve chilled as a starter.", "category": "Nordic" },
+    { "id": "off-neu-4", "name": "Raggmunk (Potato Pancakes)", "regions": ["north-europe"], "countryHint": "Sweden", "image": "", "ingredients": ["potato", "flour", "milk", "egg", "salt", "lingonberries"], "instructions": "Grate potato into a light batter and fry spoonfuls until crisp and golden. Serve with lingonberries.", "category": "Nordic" },
+    { "id": "off-neu-5", "name": "Herring and Rye (Nordic Board)", "regions": ["north-europe"], "countryHint": "Nordic region", "image": "", "ingredients": ["rye bread", "pickled herring", "boiled egg", "red onion", "dill", "butter"], "instructions": "Assemble open sandwiches on rye with herring, egg, onion and dill for a classic smörgås.", "category": "Nordic" },
+
+    { "id": "off-weu-1", "name": "Moules-Frites (Mussels and Fries)", "regions": ["west-europe"], "countryHint": "Belgium, France", "image": "", "ingredients": ["mussels", "white wine", "shallot", "garlic", "parsley", "potatoes"], "instructions": "Steam mussels in white wine with shallot, garlic and parsley until they open. Serve with crispy fries.", "category": "Western European" },
+    { "id": "off-weu-2", "name": "Sausage and Mash with Onion Gravy", "regions": ["west-europe"], "countryHint": "United Kingdom, Ireland", "image": "", "ingredients": ["pork sausages", "potatoes", "milk", "butter", "onion", "gravy"], "instructions": "Fry sausages, make buttery mashed potato and a rich onion gravy. Plate the trio together.", "category": "Western European" },
+    { "id": "off-weu-3", "name": "Cheese Fondue", "regions": ["west-europe"], "countryHint": "Switzerland, France", "image": "", "ingredients": ["gruyère", "emmental", "white wine", "garlic", "kirsch", "bread"], "instructions": "Melt cheeses with wine, garlic and kirsch until silky. Dip cubes of crusty bread into the hot fondue.", "category": "Western European" },
+    { "id": "off-weu-4", "name": "Coq au Vin", "regions": ["west-europe"], "countryHint": "France", "image": "", "ingredients": ["chicken", "red wine", "mushroom", "bacon lardons", "onion", "garlic", "thyme"], "instructions": "Marinate chicken in red wine, then braise with bacon, mushrooms and herbs until tender and glossy.", "category": "Western European" },
+
+    { "id": "off-seu-1", "name": "Paella", "regions": ["south-europe"], "countryHint": "Spain (Valencia)", "image": "", "ingredients": ["bomba rice", "saffron", "chicken", "seafood", "green beans", "smoked paprika", "stock"], "instructions": "Sizzle rice and saffron in a wide pan, add meat and seafood, pour stock and simmer until a crisp socarrat forms.", "category": "Southern European" },
+    { "id": "off-seu-2", "name": "Risotto", "regions": ["south-europe"], "countryHint": "Italy (North)", "image": "", "ingredients": ["arborio rice", "stock", "butter", "parmesan", "onion", "white wine"], "instructions": "Toast rice in butter and wine, add stock ladle by ladle while stirring until creamy. Finish with parmesan.", "category": "Southern European" },
+    { "id": "off-seu-3", "name": "Moussaka", "regions": ["south-europe", "east-europe"], "countryHint": "Greece, Balkans", "image": "", "ingredients": ["aubergine", "minced lamb", "tomato", "béchamel", "cheese", "cinnamon", "potato"], "instructions": "Layer fried aubergine and spiced lamb with tomato, top with béchamel and bake until golden.", "category": "Southern European" },
+    { "id": "off-seu-4", "name": "Bacalhau à Brás", "regions": ["south-europe"], "countryHint": "Portugal", "image": "", "ingredients": ["salted cod", "potato", "egg", "onion", "black olives", "parsley"], "instructions": "Shred rehydrated cod with matchstick potato and onion, scramble in egg, and finish with olives and parsley.", "category": "Southern European" },
+    { "id": "off-seu-5", "name": "Pastitsio", "regions": ["south-europe", "east-europe"], "countryHint": "Greece", "image": "", "ingredients": ["tubular pasta", "minced beef", "tomato", "béchamel", "cheese", "cinnamon"], "instructions": "Layer baked pasta with a spiced beef-tomato ragu, top with béchamel and cheese, and bake until golden.", "category": "Southern European" },
+
+    { "id": "off-eeu-1", "name": "Pierogi", "regions": ["east-europe"], "countryHint": "Poland, Ukraine, Slovakia", "image": "", "ingredients": ["flour dough", "potato", "cheese", "onion", "sour cream"], "instructions": "Fill boiled-until-tender dumplings with potato-cheese or onion filling. Serve golden-fried with sour cream.", "category": "Eastern European" },
+    { "id": "off-eeu-2", "name": "Borscht", "regions": ["east-europe"], "countryHint": "Ukraine, Russia, Poland", "image": "", "ingredients": ["beetroot", "cabbage", "potato", "onion", "beef stock", "dill", "sour cream"], "instructions": "Simmer beetroot, cabbage and potato in a rich beef stock. Serve hot with a swirl of sour cream and dill.", "category": "Eastern European" },
+    { "id": "off-eeu-3", "name": "Goulash", "regions": ["east-europe"], "countryHint": "Hungary", "image": "", "ingredients": ["beef", "paprika", "onion", "potato", "carrot", "stock", "caraway"], "instructions": "Brown beef with onion and paprika, add vegetables and stock, and simmer until rich. Serve with dumplings.", "category": "Eastern European" },
+    { "id": "off-eeu-4", "name": "Ćevapi (Grilled Sausages)", "regions": ["east-europe"], "countryHint": "Serbia, Bosnia, Croatia", "image": "", "ingredients": ["minced beef and lamb", "onion", "garlic", "paprika", "flatbread", "ajvar"], "instructions": "Season and shape minced meat into short sausages, grill until charred, and serve in flatbread with onion and ajvar.", "category": "Eastern European" },
+    { "id": "off-eeu-5", "name": "Pelmeni (Dumplings)", "regions": ["east-europe"], "countryHint": "Russia", "image": "", "ingredients": ["flour", "egg", "minced pork and beef", "onion", "butter", "sour cream"], "instructions": "Wrap seasoned minced meat in small pasta rounds, boil until they float and serve with butter and sour cream.", "category": "Eastern European" },
+    { "id": "off-eeu-6", "name": "Wiener Schnitzel", "regions": ["east-europe"], "countryHint": "Austria", "image": "", "ingredients": ["veal or pork escalope", "flour", "egg", "breadcrumbs", "lemon"], "instructions": "Flatten the meat, bread it, and fry in plenty of butter or oil until golden and crisp. Serve with lemon.", "category": "Eastern European" },
+
+    { "id": "off-cas-1", "name": "Plov (Uzbek Rice and Meat)", "regions": ["central-asia"], "countryHint": "Uzbekistan, Tajikistan, Central Asia", "image": "", "ingredients": ["lamb or beef", "long-grain rice", "carrot", "onion", "cumin", "garlic"], "instructions": "Brown meat, layer rice over carrots and onion, add cumin and stock, and steam until the rice is fluffy and separate.", "category": "Central Asian" },
+    { "id": "off-cas-2", "name": "Beshbarmak (Noodles and Meat)", "regions": ["central-asia"], "countryHint": "Kazakhstan, Kyrgyzstan", "image": "", "ingredients": ["lamb or beef", "wide noodles", "onion", "parsley", "broth"], "instructions": "Boil meat in broth, cook wide noodles in the stock, then layer noodles with shredded meat and onions.", "category": "Central Asian" },
+    { "id": "off-cas-3", "name": "Manti (Steamed Dumplings)", "regions": ["central-asia"], "countryHint": "Kazakhstan, Uzbekistan", "image": "", "ingredients": ["flour", "minced lamb", "onion", "cumin", "yogurt", "butter"], "instructions": "Fill small dough squares with spiced lamb, seal, and steam. Serve with yogurt and melted butter.", "category": "Central Asian" },
+    { "id": "off-cas-4", "name": "Non (Oven Flatbread)", "regions": ["central-asia"], "countryHint": "Uzbekistan, Afghanistan", "image": "", "ingredients": ["flour", "water", "yeast", "salt", "sesame"], "instructions": "Knead a leavened dough, flatten into discs, mark the centre and bake until chewy and blistered.", "category": "Central Asian" },
+
+    { "id": "off-sas-1", "name": "Chicken Curry", "regions": ["south-asia"], "countryHint": "India, Pakistan, Bangladesh, Sri Lanka", "image": "", "ingredients": ["chicken", "onion", "tomato", "garlic", "ginger", "curry spices", "coriander"], "instructions": "Sauté onion, garlic and ginger, add tomatoes and spices, then simmer chicken until tender and fragrant.", "category": "South Asian" },
+    { "id": "off-sas-2", "name": "Lentil Dal", "regions": ["south-asia"], "countryHint": "India, Nepal, Sri Lanka", "image": "", "ingredients": ["red lentils", "onion", "tomato", "garlic", "cumin", "turmeric", "ghee"], "instructions": "Simmer lentils with turmeric until soft, then temper garlic, cumin and tomato in ghee and stir through.", "category": "South Asian" },
+    { "id": "off-sas-3", "name": "Biryani", "regions": ["south-asia"], "countryHint": "India, Pakistan", "image": "", "ingredients": ["basmati rice", "chicken or lamb", "yogurt", "onion", "saffron", "biryani spices"], "instructions": "Layer marinated meat and parboiled saffron rice, seal and steam until the aromas meld. Serve with raita.", "category": "South Asian" },
+    { "id": "off-sas-4", "name": "Nepali Dal Bhat", "regions": ["south-asia"], "countryHint": "Nepal", "image": "", "ingredients": ["rice", "dal", "seasonal vegetables", "pickle", "ghee"], "instructions": "Cook steamed rice and a spiced lentil dal; serve with sautéed vegetables and pickle.", "category": "South Asian" },
+    { "id": "off-sas-5", "name": "Kottu Roti", "regions": ["south-asia"], "countryHint": "Sri Lanka", "image": "", "ingredients": ["paratha", "vegetables", "egg", "curry sauce", "spices"], "instructions": "Chop flatbread and stir-fry with vegetables, egg and curry sauce until charred and crisp-edged.", "category": "South Asian" },
+
+    { "id": "off-sea-1", "name": "Pad Thai", "regions": ["southeast-asia"], "countryHint": "Thailand", "image": "", "ingredients": ["rice noodles", "egg", "tofu or shrimp", "beansprouts", "tamarind", "chilli", "peanuts"], "instructions": "Stir-fry noodles with egg, protein and beansprouts in a tangy tamarind sauce. Top with crushed peanuts.", "category": "Southeast Asian" },
+    { "id": "off-sea-2", "name": "Nasi Goreng", "regions": ["southeast-asia"], "countryHint": "Indonesia, Malaysia", "image": "", "ingredients": ["day-old rice", "egg", "shallot", "garlic", "soy sauce", "chilli", "sweet soy"], "instructions": "Stir-fry cold rice with aromatics, soy and chilli until smoky. Top with a fried egg.", "category": "Southeast Asian" },
+    { "id": "off-sea-3", "name": "Pho Bo (Beef Noodle Soup)", "regions": ["southeast-asia"], "countryHint": "Vietnam", "image": "", "ingredients": ["rice noodles", "beef", "beef stock", "star anise", "ginger", "herbs", "lime"], "instructions": "Simmer a fragrant stock with star anise and ginger, plunge in raw beef and noodles, finish with herbs and lime.", "category": "Southeast Asian" },
+    { "id": "off-sea-4", "name": "Green Curry", "regions": ["southeast-asia"], "countryHint": "Thailand", "image": "", "ingredients": ["green curry paste", "coconut milk", "chicken", "aubergine", "basil"], "instructions": "Fry green paste in coconut cream, add chicken and aubergine, simmer and finish with Thai basil.", "category": "Southeast Asian" },
+    { "id": "off-sea-5", "name": "Hainanese Chicken Rice", "regions": ["southeast-asia"], "countryHint": "Singapore, Malaysia", "image": "", "ingredients": ["chicken", "jasmine rice", "pandan", "ginger", "chicken stock", "chilli sauce"], "instructions": "Poach chicken, cook rice in the rich stock with ginger, and serve with sliced chicken and chilli sauce.", "category": "Southeast Asian" },
+    { "id": "off-sea-6", "name": "Laksa", "regions": ["southeast-asia"], "countryHint": "Malaysia, Singapore", "image": "", "ingredients": ["rice noodles", "coconut milk", "shrimp paste", "chilli", "fish or prawns", "tofu puffs"], "instructions": "Simmer a spicy coconut broth with shrimp paste and chilli, add noodles and seafood, and top with herbs.", "category": "Southeast Asian" },
+    { "id": "off-sea-7", "name": "Adobo", "regions": ["southeast-asia"], "countryHint": "Philippines", "image": "", "ingredients": ["chicken or pork", "soy sauce", "vinegar", "garlic", "bay leaf", "peppercorn"], "instructions": "Braise meat in soy, vinegar, garlic and bay until tangy and glossy. Serve over rice.", "category": "Southeast Asian" },
+    { "id": "off-sea-8", "name": "Amok Trei (Fish Curry)", "regions": ["southeast-asia"], "countryHint": "Cambodia", "image": "", "ingredients": ["white fish", "coconut milk", "kroeung paste", "egg", "leaf cups", "lime leaves"], "instructions": "Steam a coconut-fish custard with aromatic kroeung paste in banana-leaf cups until set.", "category": "Southeast Asian" },
+
+    { "id": "off-eas-1", "name": "Kung Pao Chicken", "regions": ["east-asia"], "countryHint": "China (Sichuan)", "image": "", "ingredients": ["chicken", "peanuts", "dried chilli", "soy sauce", "vinegar", "sugar", "spring onion"], "instructions": "Stir-fry chicken with chilli and peanuts in a sweet-sour soy sauce, finishing with spring onion.", "category": "East Asian" },
+    { "id": "off-eas-2", "name": "Bulgogi (Korean BBQ Beef)", "regions": ["east-asia"], "countryHint": "South Korea", "image": "", "ingredients": ["beef rib-eye", "soy sauce", "pear", "garlic", "ginger", "sesame oil", "sugar"], "instructions": "Marinate thin beef in a soy-pear marinade, then grill or pan-fry until caramelised.", "category": "East Asian" },
+    { "id": "off-eas-3", "name": "Ramen", "regions": ["east-asia"], "countryHint": "Japan", "image": "", "ingredients": ["ramen noodles", "broth", "soy or miso", "soft egg", "pork belly", "spring onion"], "instructions": "Assemble cooked noodles in a rich seasoned broth and top with sliced pork, egg and spring onion.", "category": "East Asian" },
+    { "id": "off-eas-4", "name": "Kimchi Jjigae (Kimchi Stew)", "regions": ["east-asia"], "countryHint": "South Korea", "image": "", "ingredients": ["kimchi", "pork or tofu", "gochugaru", "onion", "stock", "spring onion"], "instructions": "Simmer aged kimchi with pork and stock, season with gochugaru, and cook until rich and fiery.", "category": "East Asian" },
+    { "id": "off-eas-5", "name": "Claypot Rice", "regions": ["east-asia"], "countryHint": "China, Hong Kong", "image": "", "ingredients": ["rice", "Chinese sausage", "chicken", "mushroom", "soy", "spring onion"], "instructions": "Cook rice with sausage, chicken and mushroom in a claypot until the base turns crisp. Glaze with soy.", "category": "East Asian" },
+    { "id": "off-eas-6", "name": "Miso Soup", "regions": ["east-asia"], "countryHint": "Japan", "image": "", "ingredients": ["dashi", "miso paste", "tofu", "wakame", "spring onion"], "instructions": "Stir miso into warm dashi, add cubed tofu and wakame, and finish with spring onion.", "category": "East Asian" },
+
+    { "id": "off-me-1", "name": "Kabsa (Spiced Rice and Chicken)", "regions": ["middle-east"], "countryHint": "Saudi Arabia, Gulf", "image": "", "ingredients": ["chicken", "basmati rice", "tomato", "onion", "kabsa spice", "cardamom"], "instructions": "Braise chicken with tomato, onion and kabsa spice. Cook rice in the rich stock beneath the chicken.", "category": "Middle Eastern" },
+    { "id": "off-me-2", "name": "Mansaf", "regions": ["middle-east"], "countryHint": "Jordan, Palestine", "image": "", "ingredients": ["lamb", "jameed", "rice", "pine nuts", "flatbread", "ghee"], "instructions": "Simmer lamb in a yogurt broth, layer over rice and flatbread, pour the broth over, and scatter pine nuts.", "category": "Middle Eastern" },
+    { "id": "off-me-3", "name": "Khoresht Gheymeh", "regions": ["middle-east"], "countryHint": "Iran", "image": "", "ingredients": ["lamb or beef", "yellow split peas", "tomato", "dried lime", "onion", "saffron", "potato"], "instructions": "Brown meat, add split peas, tomato and dried lime, simmer until tender, then top with saffron and crispy potatoes.", "category": "Middle Eastern" },
+    { "id": "off-me-4", "name": "Falafel and Hummus", "regions": ["middle-east"], "countryHint": "Lebanon, Levant", "image": "", "ingredients": ["chickpeas", "garlic", "tahini", "lemon", "cumin", "oil"], "instructions": "Blend chickpeas with herbs, shape and fry. Serve crisp falafel with a smooth, garlicky hummus.", "category": "Middle Eastern" },
+    { "id": "off-me-5", "name": "Kebab Koobideh", "regions": ["middle-east"], "countryHint": "Iran", "image": "", "ingredients": ["minced beef and lamb", "onion", "saffron", "sumac", "flatbread"], "instructions": "Knead seasoned mince well, skewer into long patties and grill. Serve with sumac and flatbread.", "category": "Middle Eastern" },
+    { "id": "off-me-6", "name": "Shawarma", "regions": ["middle-east"], "countryHint": "Levant", "image": "", "ingredients": ["chicken or lamb", "shawarma spice", "yogurt", "flatbread", "pickles", "garlic sauce"], "instructions": "Marinate and roast meat, slice thin, and roll in flatbread with pickles and garlic sauce.", "category": "Middle Eastern" }
   ]
 }

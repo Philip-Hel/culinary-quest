@@ -22,6 +22,7 @@ import {
 
 import { searchRecipesMulti, fetchSpoonacularRecipeDetails } from "./spoonacular";
 import { searchEdamamRecipes } from "./edamam";
+import { getOfflineRecipes } from "./offline";
 
 export default function App() {
   const [countries, setCountries] = useState([]);
@@ -96,6 +97,19 @@ export default function App() {
       );
       collected.push(...(edamamResults || []));
 
+      // 5) Offline curated pool: guaranteed dishes for cuisines the live APIs
+      //    can't cover (Pacific islands, regional African/Latin American, etc.).
+      //    Always safe, no key — dedupe by name so we don't repeat live finds.
+      const offlineResults = getOfflineRecipes(random);
+      if (offlineResults.length) {
+        const liveNames = new Set(
+          collected.map((r) => (r.strMeal || r.title || "").toLowerCase())
+        );
+        for (const r of offlineResults) {
+          if (!liveNames.has(r.strMeal.toLowerCase())) collected.push(r);
+        }
+      }
+
       if (collected.length === 0) {
         setError("No recipes found for this country right now — try again!");
       } else {
@@ -120,8 +134,8 @@ export default function App() {
       let details;
       if (random.source === "spoonacular") {
         details = await fetchSpoonacularRecipeDetails(random.idMeal);
-      } else if (random.source === "edamam") {
-        // Edamam search results already include the full recipe.
+      } else if (random.source === "edamam" || random.source === "offline") {
+        // Edamam/offline search results already include the full recipe.
         details = random;
       } else {
         details = await fetchRecipeDetails(random.idMeal);

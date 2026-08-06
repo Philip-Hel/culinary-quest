@@ -75,9 +75,11 @@ culinary-quest/
     ├── App.jsx                 # ⚙️ Top-level state + orchestration of the flow
     ├── api.js                  # ⚙️ API/static fetchers + the full country→cuisine cuisineMap
     ├── countries.json          # Bundled static country list (name, ISO, region) — replaces the deprecated REST Countries API
-    ├── cuisines.js             # ⚙️ Resolves a country to a working recipe source (MealDB area / Spoonacular cuisine / Edamam keyword / category fallback)
+    ├── cuisines.js             # ⚙️ Resolves a country to a working recipe source (MealDB area / Spoonacular cuisine / Edamam keyword / offline regions / category fallback)
     ├── spoonacular.js          # Optional 2nd recipe source (via VITE_SPOONACULAR_API_KEY)
     ├── edamam.js               # Optional 3rd recipe source, best regional coverage (via VITE_EDAMAM_APP_ID/KEY)
+    ├── offline.js              # Bundled offline recipe source (no key, never breaks)
+    ├── recipes.json            # ⚙️ Curated offline dishes for cuisines live APIs don't cover
     ├── normalizeCountryName.js # Normalizes country names for cuisine lookup
     └── components/
         ├── PageLayout.jsx      # ⚙️ Page shell: header, theme-aware background, mounts DarkModeToggle
@@ -142,9 +144,11 @@ Rendering:
 
 - **`edamam.js`** — the optional third source, with the best regional coverage — but **paid only** (no free tier). Reads `VITE_EDAMAM_APP_ID` + `VITE_EDAMAM_APP_KEY`; returns `[]` if either is missing. Search uses `api/recipes/v2?type=public&q=…`; full recipe objects (ingredients, yield, time) come back in search results, so there is no separate detail call.
 
+- **`offline.js`** — bundled, keyless recipe source powered by `recipes.json`. Matches a country to region tags via `resolveOfflineRegions` (cuisines.js) and returns curated dishes for cuisines live APIs barely cover (Pacific islands, regional African, Latin American, Middle Eastern). No network, never breaks; the trade-off is it only updates when `recipes.json` is regenerated and committed. Live sources are primary — offline enriches the pool.
+
 - **`normalizeCountryName.js`** — lowercases, strips every non-`[a-z\s]` character, and trims.
 
-- **Recipe source fallback chain:** valid TheMealDB area → category fallback pool → (optional) Spoonacular cuisine → (optional) Edamam keyword → friendly error if absolutely nothing matches.
+- **Recipe source fallback chain:** valid TheMealDB area → category fallback pool → (optional) Spoonacular cuisine → (optional) Edamam keyword → bundled offline pool → friendly error if absolutely nothing matches.
 
 ---
 

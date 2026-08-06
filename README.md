@@ -27,6 +27,7 @@ Culinary Quest is a React + Vite application that transforms cooking into explor
 - TheMealDB (recipes, default)
 - Spoonacular (recipes, optional — see Getting Started)
 - Edamam (recipes, optional, paid — see Getting Started)
+- Bundled offline recipe pool (curated dishes for cuisines live APIs don't cover: Pacific islands, regional African, Latin American, etc.)
 - Node.js
 
 🚀 Getting Started
@@ -58,6 +59,8 @@ src/
   cuisines.js       # resolves a country to a working recipe source
   spoonacular.js    # optional second, larger recipe API
   edamam.js         # optional third recipe API (best regional coverage)
+  offline.js        # bundled offline recipe pool for cuisines live APIs don't cover
+  recipes.json      # curated offline dishes (Pacific, African, Latin American, ...)
   normalizeCountryName.js
   App.jsx
   main.jsx

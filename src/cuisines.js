@@ -348,3 +348,54 @@ export function resolveSpoonacularKeywords({ name, region, subregion }) {
   const concept = lookupConcept(name, region, subregion) || "American";
   return INGREDIENT_KEYWORDS[concept] || [];
 }
+
+// Map a country to the region tags used by the bundled offline recipe pool
+// (src/recipes.json). Live sources are primary; these tags decide which curated
+// offline dishes are available as a fallback for the gaps live APIs don't cover.
+const REGION_TAGS = {
+  // Pacific / Oceania
+  polynesia: "pacific",
+  melanesia: "pacific",
+  micronesia: "pacific",
+  oceania: "pacific",
+  // Africa
+  "western africa": "west-africa",
+  "middle africa": "west-africa",
+  "eastern africa": "east-africa",
+  "southern africa": "east-africa",
+  "northern africa": "north-africa",
+  // Americas
+  caribbean: "caribbean",
+  "south america": "latin-america",
+  "central america": "latin-america",
+  // Middle East (only when cuisine concept is Middle Eastern, else generic)
+  "western asia": "middle-east",
+};
+
+const CONCEPT_REGION_TAG = {
+  African: ["east-africa", "west-africa"],
+  Caribbean: ["caribbean"],
+  "Latin American": ["latin-america"],
+  "Middle Eastern": ["middle-east"],
+};
+
+export function resolveOfflineRegions({ name, region, subregion }) {
+  const tags = new Set();
+  const subnorm = String(subregion || "").toLowerCase();
+  const regnorm = String(region || "").toLowerCase();
+  const add = (t) => t && tags.add(t);
+
+  // Prefer the precise geographic tag (subregion, then region).
+  add(REGION_TAGS[subnorm]);
+  add(REGION_TAGS[regnorm]);
+
+  // Only when no precise geographic tag matched, fall back to the broad
+  // cuisine-concept tag so every country in that cuisine still gets coverage
+  // (e.g. any African country not in a tagged subregion).
+  if (tags.size === 0) {
+    const concept = lookupConcept(name, region, subregion) || "";
+    for (const t of CONCEPT_REGION_TAG[concept] || []) tags.add(t);
+  }
+
+  return tags;
+}

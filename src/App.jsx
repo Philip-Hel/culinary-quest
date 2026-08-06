@@ -15,11 +15,12 @@ import {
 import {
   resolveMealdbArea,
   resolveSpoonacularCuisine,
+  resolveSpoonacularKeywords,
   resolveEdamam,
   CATEGORY_FALLBACKS,
 } from "./cuisines";
 
-import { searchRecipesByCuisine, fetchSpoonacularRecipeDetails } from "./spoonacular";
+import { searchRecipesMulti, fetchSpoonacularRecipeDetails } from "./spoonacular";
 import { searchEdamamRecipes } from "./edamam";
 
 export default function App() {
@@ -76,15 +77,18 @@ export default function App() {
         collected.push(...(categoryMeals || []));
       }
 
-      // 3) Scale out: Spoonacular (if an API key is configured) adds many more
-      //    results for the country's cuisine.
+      // 3) Scale out: Spoonacular multi-angle search (free) — the country's
+      //    cuisine plus a rotating signature-ingredient keyword, de-duplicated,
+      //    so thin cuisines yield a much bigger pool without burning quota.
       const spoonacularCuisine = resolveSpoonacularCuisine(random);
-      const spoonResults = await searchRecipesByCuisine(spoonacularCuisine);
+      const spoonKeywords = resolveSpoonacularKeywords(random);
+      const spoonResults = await searchRecipesMulti({
+        cuisine: spoonacularCuisine,
+        keywords: spoonKeywords,
+      });
       collected.push(...(spoonResults || []));
 
-      // 4) Scale out more: Edamam (optional) is a large, region-aware DB that
-      //    fills gaps the other two sources can't. Rich recipe objects come
-      //    back directly in search results.
+      // 4) Scale out more: Edamam (optional, paid) fills remaining regional gaps.
       const edamam = resolveEdamam(random);
       const edamamResults = await searchEdamamRecipes(
         edamam.keyword,

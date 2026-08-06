@@ -138,7 +138,7 @@ Rendering:
 
 - **`cuisines.js`** — the source-of-truth for recipe resolution. Because many `cuisineMap` concepts (e.g. `American`, `African`, `Caribbean`, `Middle Eastern`, `Asian`, `French`, `German`, `Indian`) are **not valid TheMealDB areas and return 0 meals**, this module translates them into valid areas (`resolveMealdbArea`) or Spoonacular cuisines (`resolveSpoonacularCuisine`), and exposes `CATEGORY_FALLBACKS` for when no cuisine works. **Do not add new cuisine→area mappings that TheMealDB doesn't support.**
 
-- **`spoonacular.js`** — the optional, much larger recipe source. Reads `VITE_SPOONACULAR_API_KEY`; returns `[]`/`null` (no throw) when the key is missing so the app degrades gracefully. Search uses `/recipes/complexSearch?cuisine=…&number=25`; details use `/recipes/{id}/information`.
+- **`spoonacular.js`** — the optional, much larger recipe source. Reads `VITE_SPOONACULAR_API_KEY`; returns `[]`/`null` (no throw) when the key is missing so the app degrades gracefully. `searchRecipesMulti()` queries the cuisine **and**, when the cuisine is thin, a rotating signature-ingredient keyword, merging/dedupeing (adaptive: stops early when a cuisine is already well-covered). Search uses `/recipes/complexSearch?cuisine=…|query=…&number=15`; details use `/recipes/{id}/information`. Free tier is 50 points/day (~1.07 pts/call), so the logic is deliberately frugal.
 
 - **`edamam.js`** — the optional third source, with the best regional coverage — but **paid only** (no free tier). Reads `VITE_EDAMAM_APP_ID` + `VITE_EDAMAM_APP_KEY`; returns `[]` if either is missing. Search uses `api/recipes/v2?type=public&q=…`; full recipe objects (ingredients, yield, time) come back in search results, so there is no separate detail call.
 

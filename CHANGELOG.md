@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 - **Spoonacular integration** (optional second, much larger recipe source) via `src/spoonacular.js`; enabled with `VITE_SPOONACULAR_API_KEY` in `.env` (see `.env.example`).
+- **Spoonacular adaptive broadening** — when a country's cuisine is thin, also query a rotating signature-ingredient keyword and merge/dedupe; stops early when a cuisine is well-covered, staying frugal within the 50-point/day free tier.
 - **Edamam integration** (optional third source, best regional coverage, but **paid only** — no free tier) via `src/edamam.js`; enabled with `VITE_EDAMAM_APP_ID` + `VITE_EDAMAM_APP_KEY`. Returns complete recipe objects in search results (no separate detail call).
 - **`src/cuisines.js`** — resolves any country to a working recipe source (valid TheMealDB area → category fallback → Spoonacular → Edamam).
 - **Dark Mode toggle** (`DarkModeToggle.jsx`) — persistent via `localStorage`, defaults to system preference.

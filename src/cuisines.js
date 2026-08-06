@@ -312,3 +312,39 @@ export function resolveEdamam({ name, region, subregion }) {
     countryName: fallbackName,
   };
 }
+
+// Signature-ingredient / dish keywords to broaden Spoonacular results for
+// cuisines where a plain cuisine search is thin. Rotated among so each pick
+// surfaces a different slice of the country's food without burning quota.
+const INGREDIENT_KEYWORDS = {
+  African: ["jollof", "okra", "peanut stew", "plantain"],
+  "Latin American": ["empanadas", "ceviche", "arepa", "mole"],
+  Caribbean: ["callaloo", "rice and peas", "pepperpot", "ackee"],
+  "Middle Eastern": ["hummus", "falafel", "shawarma", "kabsa"],
+  Asian: ["stir fry", "noodle", "curry", "rice bowl"],
+  Australian: ["barbecue", "lamington", "pavlova", "seafood"],
+  Indian: ["curry", "tandoori", "dal", "biryani"],
+  Mexican: ["tacos", "guacamole", "enchilada", "pozole"],
+  Thai: ["pad thai", "green curry", "tom yum", "massaman"],
+  Jamaican: ["jerk chicken", "oxtail", "ackee", "curry goat"],
+  Vietnamese: ["pho", "banh mi", "spring rolls", "bun cha"],
+  Chinese: ["dumplings", "kung pao", "fried rice", "dim sum"],
+  Japanese: ["sushi", "ramen", "teriyaki", "katsu"],
+  Turkish: ["kebab", "borek", "meze", "sis kebab"],
+  Greek: ["souvlaki", "moussaka", "spanakopita", "tzatziki"],
+  Spanish: ["paella", "tapas", "gazpacho", "chorizo"],
+  British: ["fish and chips", "roast", "shepherds pie", "scones"],
+  French: ["coq au vin", "ratatouille", "crepe", "boeuf bourguignon"],
+  Italian: ["risotto", "pasta", "bruschetta", "tiramisu"],
+  Egyptian: ["koshari", "ful medames", "molokhia"],
+  Moroccan: ["tagine", "couscous", "harissa"],
+  Kenyan: ["ugali", "sukuma", "biryani"],
+  Polish: ["pierogi", "bigos", "kielbasa"],
+  Russian: ["borscht", "pelmeni", "blini"],
+  Croatian: ["cevapi", "sarma", "raznjici"],
+};
+
+export function resolveSpoonacularKeywords({ name, region, subregion }) {
+  const concept = lookupConcept(name, region, subregion) || "American";
+  return INGREDIENT_KEYWORDS[concept] || [];
+}

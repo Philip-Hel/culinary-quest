@@ -34,7 +34,7 @@ npm install
 npm run dev
 
 Optional: enable the larger recipe sources
-- Lowest effort: create the free Spoonacular key at https://spoonacular.com (50 free points/day, no credit card via Spoonacular directly). It's the largest genuinely-free source.
+- Lowest effort: create the free Spoonacular key at https://spoonacular.com (50 free points/day, no credit card via Spoonacular directly). It's the largest genuinely-free source. The app queries the country's cuisine plus a rotating signature-ingredient keyword, and stops early when a cuisine is already well-covered — so a typical visit costs ~1–3 points (roughly 15–45 country picks/day on the free tier).
 - Edamam is **not free** (paid only, plans start ~$9/mo) — skip it unless you want to pay. The code supports it if you add credentials later.
 - Copy `.env.example` to `.env` and set whatever keys you have:
    VITE_SPOONACULAR_API_KEY=your-spoonacular-key

@@ -375,7 +375,7 @@ export default function App() {
             </aside>
 
             {/* ---- Right main: startup map / country info / recipe ---- */}
-            <section className="flex min-w-0 flex-col gap-4 lg:h-[calc(100vh-220px)] lg:min-h-[460px]">
+            <section className="flex min-w-0 flex-col gap-4 lg:min-h-[calc(100vh-220px)]">
               {loading && (
                 <CQCard className="w-full">
                   <div className="flex items-center justify-center gap-3 text-cq-muted dark:text-cq-darkMuted">

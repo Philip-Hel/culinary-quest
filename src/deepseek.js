@@ -53,19 +53,43 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
   }
 }
 
-// Ask DeepSeek for one random, region-appropriate dish for a country, returned
-// Build a keyless image URL (loremflickr) for an AI dish, so AI suggestions get
-// a real food photo instead of a blank banner. "Random" flag adds variety so
-// the same dish isn't always the same photo. Returns "" if nothing usable.
-function imageForDish(name) {
+// Resolve a verified food photo for an AI dish from TheMealDB (keyless, already
+// used by api.js). TheMealDB serves real dish thumbnails, so we never get an
+// unrelated/random image the way a generic "random photo" service would.
+//
+// Strategy: search by the dish name; if that returns nothing, re-search using
+// just the first word (e.g. "spicy tuna guacamole" → "spicy"). Returns a
+// real thumbnail URL, or "" when nothing useful matches — the caller then
+// leaves strMealThumb empty so RecipeCard shows its themed placeholder instead.
+async function fetchFoodImage(name) {
   const slug = String(name || "")
     .toLowerCase()
+    .normalize("NFKD")
     .replace(/[^a-z\s]/g, "")
-    .trim()
-    .replace(/\s+/g, ",");
+    .replace(/\s+/g, " ")
+    .trim();
   if (!slug) return "";
-  const url = `https://loremflickr.com/640/420/${slug},food`;
-  return url; // RecipeCard falls back to the placeholder if it fails to load.
+
+  // Try the full dish name first, then its first word.
+  const keywords = [slug, slug.split(" ")[0]];
+  for (const kw of keywords) {
+    try {
+      const res = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(kw)}`
+      );
+      if (!res.ok) {
+        console.error("TheMealDB image search error:", res.status, res.statusText);
+        return "";
+      }
+      const data = await res.json();
+      const meal = data && data.meals && data.meals[0];
+      if (meal && meal.strMealThumb) return meal.strMealThumb;
+    } catch (err) {
+      console.error("TheMealDB image search failed:", err);
+      return "";
+    }
+  }
+  return ""; // no match — let RecipeCard fall back to its themed placeholder
 }
 
 // Ask DeepSeek for a dish for a country. `exclude` lists dish names the user
@@ -101,7 +125,7 @@ export async function suggestAIDish({ name, region, subregion, exclude = [], str
   return {
     idMeal: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     strMeal: dishName,
-    strMealThumb: imageForDish(dishName),
+    strMealThumb: await fetchFoodImage(dishName), // "" → themed placeholder
     strInstructions: String(json.instructions || "").trim(),
     strIngredients: Array.isArray(json.ingredients) ? json.ingredients : [],
     strCategory: region || "AI-suggested",
@@ -141,7 +165,7 @@ export async function tweakRecipeWithAI(recipe, instruction) {
     ...recipe,
     idMeal: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     strMeal: tweakedName,
-    strMealThumb: recipe.strMealThumb || imageForDish(tweakedName),
+    strMealThumb: recipe.strMealThumb || (await fetchFoodImage(tweakedName)),
     strIngredients: Array.isArray(json.ingredients) ? json.ingredients : (recipe.strIngredients || []),
     strInstructions: String(json.instructions || recipe.strInstructions).trim(),
     strCategory: recipe.strCategory || "AI-suggested",

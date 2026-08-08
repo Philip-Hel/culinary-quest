@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import CQCard from "./CQCard";
 import { fetchCountryProfile } from "../countryInfo";
 
-// Show more about a selected country (before a recipe is picked): a
-// representative photo + a short summary (via Wikipedia's keyless API), plus
-// cultural facts (capital, languages, area, region). If the profile fetch
-// fails the panel degrades cleanly to the flag + bundled facts.
-// The located world map itself lives in the left sidebar (App.jsx).
+// Show more about a selected country (before a recipe is picked): a fuller
+// layout that makes use of the whole right panel — a header with a small flag,
+// a Wikipedia summary (keyless API), and a generous facts grid. If the profile
+// fetch fails the panel degrades cleanly to the bundled facts.
+// The located world map lives in the left sidebar (App.jsx).
 
 function formatArea(km2) {
   if (!km2) return "—";
@@ -33,25 +33,6 @@ function useCountryProfile(name) {
   return state.name === name ? state.profile : {};
 }
 
-// Thematic placeholder used when the country photo is missing or fails to load.
-function PhotoCard({ country, thumbnail }) {
-  return (
-    <div className="relative w-full overflow-hidden rounded-lg bg-gradient-to-br from-cq-accentSoft/60 via-cq-surface to-cq-primary/10 dark:from-cq-darkSurface2 dark:via-cq-darkSurface dark:to-cq-darkRing/10">
-      {thumbnail ? (
-        <img
-          src={thumbnail}
-          alt={`${country.name} · ${country.region}`}
-          className="aspect-banner h-auto w-full object-cover"
-        />
-      ) : (
-        <div className="aspect-banner grid w-full place-items-center bg-cq-accentSoft/50 text-cq-accent dark:bg-cq-darkSurface2 dark:text-cq-ring">
-          <span className="text-6xl drop-shadow">🗺</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function CountryInfo({ country }) {
   // Hooks must run before any early return.
   const profile = useCountryProfile(country && country.name);
@@ -66,59 +47,79 @@ export default function CountryInfo({ country }) {
     country.region && ["Continent", country.region],
   ].filter(Boolean);
 
-  const hasFlag = Boolean(country.flag);
+  // A fuller extract (up to ~4 sentences) so the panel has real content.
+  const sentences = (profile.extract || "").split(".").filter(Boolean);
+  const summary = sentences.slice(0, 4).join(".") + (sentences.length > 4 ? "." : "");
 
   return (
-    <div className="flex flex-col gap-4">
-      <CQCard className="w-full p-5">
-        {/* Hero: photo + name + description */}
-        <PhotoCard country={country} thumbnail={profile.thumbnail} />
-
-        <div className="mt-4 flex items-center gap-3">
-          {hasFlag && (
+    <div className="flex h-full flex-col gap-4">
+      <CQCard className="w-full p-6">
+        {/* Header: small flag + eyebrow + name */}
+        <div className="flex items-center gap-4">
+          {country.flag ? (
             <img
               src={country.flag}
               alt={`Flag of ${country.name}`}
-              className="h-10 w-14 shrink-0 rounded object-cover ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60"
+              className="h-12 w-16 shrink-0 rounded ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60"
             />
+          ) : (
+            <span className="grid h-12 w-16 shrink-0 place-items-center rounded bg-cq-accentSoft/60 font-serif text-xl font-bold text-cq-accent dark:bg-cq-darkSurface2 dark:text-cq-ring">
+              {country.name.charAt(0)}
+            </span>
           )}
           <div>
-            <h2 className="font-serif text-2xl font-bold text-cq-text dark:text-cq-darkText">
-              {country.name}
-            </h2>
-            <p className="text-sm text-cq-muted dark:text-cq-darkMuted">
+            <p className="text-xs uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted">
               {country.region}
               {country.subregion ? ` · ${country.subregion}` : ""}
             </p>
+            <h2 className="font-serif text-3xl font-bold text-cq-text dark:text-cq-darkText">
+              {country.name}
+            </h2>
+            {profile.description && (
+              <p className="mt-0.5 text-sm font-medium text-cq-primary dark:text-cq-ring">
+                {profile.description}
+              </p>
+            )}
           </div>
         </div>
 
-        {profile.description && (
-          <p className="mt-2 text-sm font-medium text-cq-primary dark:text-cq-ring">
-            {profile.description}
+        <div className="rule-double my-5" />
+
+        {/* Summary */}
+        {summary ? (
+          <p className="font-serif text-lg italic leading-relaxed text-cq-text/90 dark:text-cq-darkText/85">
+            {summary}
+          </p>
+        ) : (
+          <p className="font-serif text-lg italic leading-relaxed text-cq-muted dark:text-cq-darkMuted">
+            A country of {country.region.toLowerCase()} — the perfect place to
+            start a {country.name} food journey.
           </p>
         )}
 
-        {profile.extract && (
-          <p className="mt-3 font-serif italic text-sm leading-relaxed text-cq-text/90 dark:text-cq-darkText/80">
-            {profile.extract.split(".").slice(0, 2).join(".") + "."}
-          </p>
-        )}
+        <div className="rule-double my-5" />
 
-        <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Facts grid — generous tiles across the full width */}
+        <h3 className="text-xs font-bold uppercase tracking-wideish text-cq-accent dark:text-cq-ring">
+          At a glance
+        </h3>
+        <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {facts.map(([label, value]) => (
-            <div key={label} className="border-t border-cq-border/50 dark:border-cq-darkBorder/50 pt-2">
-              <dt className="text-[0.7rem] font-semibold uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted">
+            <div
+              key={label}
+              className="rounded-lg border border-cq-border/60 dark:border-cq-darkBorder/60 bg-cq-bg/60 px-3 py-3 dark:bg-cq-darkSurface2/60"
+            >
+              <dt className="text-[0.68rem] font-semibold uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted">
                 {label}
               </dt>
-              <dd className="mt-0.5 font-serif text-base text-cq-text dark:text-cq-darkText">
+              <dd className="mt-1 font-serif text-lg leading-snug text-cq-text dark:text-cq-darkText">
                 {value}
               </dd>
             </div>
           ))}
         </dl>
 
-        <p className="mt-4 font-serif italic text-sm leading-relaxed text-cq-muted dark:text-cq-darkMuted">
+        <p className="mt-5 font-serif italic text-sm leading-relaxed text-cq-muted dark:text-cq-darkMuted">
           Press <span className="font-medium text-cq-primary dark:text-cq-ring">"Pick Local Recipe"</span>{" "}
           or <span className="font-medium text-cq-primary dark:text-cq-ring">"AI Recipe Idea"</span> to explore dishes
           from {country.name}'s kitchen.

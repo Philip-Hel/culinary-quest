@@ -339,7 +339,7 @@ export default function App() {
             }}
           />
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[280px_1fr] lg:items-start">
+          <div className="grid gap-6 lg:grid-cols-[280px_1fr] lg:items-start lg:min-h-[calc(100vh-220px)]">
             {/* ---- Left sidebar: country controls + compact flag (vertical stack) ---- */}
             <aside className="flex flex-col gap-4 lg:sticky lg:top-4">
               <div className="flex flex-col gap-2">
@@ -378,7 +378,7 @@ export default function App() {
             </aside>
 
             {/* ---- Right main: startup map / country info / recipe ---- */}
-            <section className="flex min-w-0 flex-col gap-4">
+            <section className="flex min-w-0 flex-col gap-4 lg:h-[calc(100vh-220px)] lg:min-h-[460px]">
               {loading && (
                 <CQCard className="w-full">
                   <div className="flex items-center justify-center gap-3 text-cq-muted dark:text-cq-darkMuted">

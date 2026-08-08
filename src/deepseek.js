@@ -10,6 +10,7 @@
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || "";
 const BASE = "https://api.deepseek.com";
 const MODEL = import.meta.env.VITE_DEEPSEEK_MODEL || "deepseek-v4-flash";
+import { searchGoogleImage, googleImagesConfigured } from "./googleImages";
 
 export const aiConfigured = Boolean(API_KEY);
 
@@ -74,6 +75,14 @@ async function fetchFoodImage(name) {
     .replace(/\s+/g, " ")
     .trim();
   if (!slug) return "";
+
+  // When the user has configured Google Custom Search, use it first — it
+  // returns noticeably more relevant food photos than Openverse. Fall through
+  // to Openverse on any miss so a photo still appears when possible.
+  if (googleImagesConfigured) {
+    const googleUrl = await searchGoogleImage(`${slug} food`);
+    if (googleUrl) return googleUrl;
+  }
 
   // Significant words from the dish, plus a broad set of food terms used to
   // recognise a food-looking title.

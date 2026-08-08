@@ -58,9 +58,14 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
 // larger than any single food site. Searching by the dish name returns relevant
 // results with a thumbnail URL we can drop straight into an <img>.
 //
-// Returns a thumbnail URL, or "" when the request fails so RecipeCard falls
-// back to its themed placeholder. We take the best-ranked relevant result, and
-// prefer one whose title echoes the dish so the photo generally matches.
+// To keep the photos food-only we (a) append a literal "food" tag to the query
+// so the whole result set is food-weighted, and (b) prefer a result whose title
+// carries a food signal (a dish word, or a common food term). If none look
+// foody we still take the top-ranked result (already food-biased) rather than
+// giving up, so a photo shows up from the big pool.
+//
+// Returns a thumbnail URL, or "" only when the request fails or returns nothing
+// (RecipeCard then shows its themed placeholder).
 async function fetchFoodImage(name) {
   const slug = String(name || "")
     .toLowerCase()
@@ -70,33 +75,58 @@ async function fetchFoodImage(name) {
     .trim();
   if (!slug) return "";
 
-  // The significant words to gauge title relevance (drop tiny filler words).
+  // Significant words from the dish, plus a broad set of food terms used to
+  // recognise a food-looking title.
   const filler = new Set(["the", "a", "an", "of", "with", "and", "on", "in", "for"]);
   const dishWords = [...new Set(slug.split(" "))].filter((w) => w.length > 2 && !filler.has(w));
-  const prefers = (title) =>
-    dishWords.length > 0 &&
-    dishWords.some((w) => String(title || "").toLowerCase().includes(w));
+  const foodTerms = new Set([
+    "food", "dish", "meal", "recipe", "cook", "cooking", "kitchen", "dinner", "lunch", "breakfast",
+    "soup", "stew", "curry", "salad", "stir", "fry", "fried", "grill", "grilled", "bake", "baked",
+    "roast", "roasted", "steak", "pork", "beef", "chicken", "beef", "fish", "shrimp", "prawn", "crab",
+    "rice", "noodle", "noodles", "ramen", "pasta", "pizza", "bread", "cake", "cookie", "pie", "taco",
+    "burrito", "sauce", "soup", "cheese", "sausage", "tofu", "veggie", "vegetable", "tomato", "potato",
+    "egg", "eggs", "fruit", "ice", "chocolate", "spice", "spicy", "cream", "butter", "olive", "garlic",
+  ]);
+  const isFood = (title) => {
+    const t = String(title || "").toLowerCase();
+    // A title mentioning the dish (or a dish word) is a strong signal.
+    if (dishWords.some((w) => t.includes(w))) return true;
+    // Otherwise check every word of the title against known food terms, e.g.
+    // "Pad Thai. #food #foodporn #thaifood" → matches "food".
+    const words = t.split(/[^a-z]+/).filter(Boolean);
+    return words.some((w) => foodTerms.has(w));
+  };
 
-  try {
-    const res = await fetch(
-      `https://api.openverse.org/v1/images/?q=${encodeURIComponent(slug)}&page_size=6&filter_dead=true`
-    );
-    if (!res.ok) {
-      console.error("Openverse image search error:", res.status, res.statusText);
+  // Build candidate queries, most specific first. A fully specialised dish name
+  // like "Taro with Coconut Milk (Ongngem)" can return nothing, so we retry with
+  // fewer significant words (e.g. "taro coconut milk") until a food photo shows.
+  const candidates = [dishWords.join(" ")];
+  if (dishWords.length > 2) candidates.push(dishWords.slice(0, Math.ceil(dishWords.length / 2)).join(" "));
+  if (dishWords.length > 1) candidates.push(dishWords[0]);
+
+  for (const query of candidates) {
+    try {
+      const res = await fetch(
+        `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query + " food")}&page_size=8&filter_dead=true`
+      );
+      if (!res.ok) {
+        console.error("Openverse image search error:", res.status, res.statusText);
+        return "";
+      }
+      const data = await res.json();
+      const results = (data && data.results) || [];
+      if (!results.length) continue;
+
+      // Prefer a title that mentions the dish or reads as food; fall back to the
+      // top-ranked (already food-weighted) result so we rarely show a placeholder.
+      const pick = results.find((r) => isFood(r.title)) || results[0];
+      return pick.thumbnail || pick.url || "";
+    } catch (err) {
+      console.error("Openverse image search failed:", err);
       return "";
     }
-    const data = await res.json();
-    const results = (data && data.results) || [];
-    if (!results.length) return "";
-
-    // Prefer a result whose title actually mentions the dish; otherwise take
-    // Openverse's top-ranked result (still relevant in the big pool).
-    const pick = results.find((r) => prefers(r.title)) || results[0];
-    return pick.thumbnail || pick.url || "";
-  } catch (err) {
-    console.error("Openverse image search failed:", err);
-    return "";
   }
+  return "";
 }
 
 // Ask DeepSeek for a dish for a country. `exclude` lists dish names the user

@@ -10,7 +10,7 @@
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || "";
 const BASE = "https://api.deepseek.com";
 const MODEL = import.meta.env.VITE_DEEPSEEK_MODEL || "deepseek-v4-flash";
-import { searchBingImage, bingImagesConfigured } from "./bingImages";
+import { searchWikimediaFoodImage } from "./wikimediaImages";
 
 export const aiConfigured = Boolean(API_KEY);
 
@@ -76,12 +76,12 @@ async function fetchFoodImage(name) {
     .trim();
   if (!slug) return "";
 
-  // When the user has configured Bing, use it first — it searches the whole
-  // web and returns noticeably more relevant food photos than Openverse. Fall
-  // through to Openverse on any miss so a photo still appears when possible.
-  if (bingImagesConfigured) {
-    const bingUrl = await searchBingImage(`${slug} food`);
-    if (bingUrl) return bingUrl;
+  // Try Wikimedia Commons first — free, keyless, and its food results are the
+  // most relevant of the sources tried. Fall through to Openverse on a miss so
+  // a photo still appears when possible.
+  {
+    const wikiUrl = await searchWikimediaFoodImage(slug);
+    if (wikiUrl) return wikiUrl;
   }
 
   // Significant words from the dish, plus a broad set of food terms used to

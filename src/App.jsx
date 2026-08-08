@@ -365,6 +365,16 @@ export default function App() {
               )}
 
               <CountryCard country={country} compact />
+
+              {/* Located map of the selected country (appears once a country is chosen) */}
+              {country?.latlng && (
+                <div className="overflow-hidden rounded-xl border border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/70 dark:bg-cq-darkSurface2/60 p-1 shadow-cq">
+                  <WorldMap latlng={country.latlng} label={country.name} highlight={country.name} />
+                  <p className="pb-1 pt-1 text-center text-[0.62rem] uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted">
+                    {country.name} · located here
+                  </p>
+                </div>
+              )}
             </aside>
 
             {/* ---- Right main: startup map / country info / recipe ---- */}

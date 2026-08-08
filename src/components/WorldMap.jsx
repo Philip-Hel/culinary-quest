@@ -218,7 +218,7 @@ export default function WorldMap({ latlng, label, highlight, size = "auto", clas
             style={{ left: `${(x / W) * 100}%`, top: `${(y / H) * 100}%` }}
           >
             <span
-              className="block h-3.5 w-3.5 rounded-full bg-cq-primary ring-2 ring-white/90 shadow"
+              className="block h-[7px] w-[7px] rounded-full bg-cq-primary ring-2 ring-white/90 shadow"
               title={label}
             />
           </div>

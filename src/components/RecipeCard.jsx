@@ -1,3 +1,4 @@
+import { useState } from "react";
 import CQCard from "./CQCard";
 
 // TheMealDB packs ingredients into strIngredient1..20 + strMeasure1..20.
@@ -32,6 +33,10 @@ const StarRow = () => (
 );
 
 export default function RecipeCard({ recipe }) {
+  // Hooks must run before the early return. `imgFailed` resets when the card is
+  // remounted via its `key` in App.jsx (per-recipe), so a new dish re-tries its photo.
+  const [imgFailed, setImgFailed] = useState(false);
+
   if (!recipe) return null;
 
   const isAI = recipe.source === "deepseek";
@@ -45,10 +50,11 @@ export default function RecipeCard({ recipe }) {
     <CQCard className="w-full overflow-hidden p-0">
       {/* Bleeding photo hero with caption strip */}
       <figure className="relative">
-        {recipe.strMealThumb ? (
+        {recipe.strMealThumb && !imgFailed ? (
           <img
             src={recipe.strMealThumb}
             alt={recipe.strMeal}
+            onError={() => setImgFailed(true)}
             className="aspect-banner w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
           />
         ) : (

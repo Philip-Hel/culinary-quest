@@ -54,6 +54,20 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
 }
 
 // Ask DeepSeek for one random, region-appropriate dish for a country, returned
+// Build a keyless image URL (loremflickr) for an AI dish, so AI suggestions get
+// a real food photo instead of a blank banner. "Random" flag adds variety so
+// the same dish isn't always the same photo. Returns "" if nothing usable.
+function imageForDish(name) {
+  const slug = String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, "")
+    .trim()
+    .replace(/\s+/g, ",");
+  if (!slug) return "";
+  const url = `https://loremflickr.com/640/420/${slug},food`;
+  return url; // RecipeCard falls back to the placeholder if it fails to load.
+}
+
 // as strict JSON. Returns the recipe in the app's shape with source "deepseek",
 // or null on any failure / missing key / unparseable reply.
 export async function suggestAIDish({ name, region, subregion }) {
@@ -69,9 +83,11 @@ export async function suggestAIDish({ name, region, subregion }) {
   const text = await chat(prompt);
   const json = extractJson(text);
   if (!json) return null;
+  const dishName = String(json.name || "").trim();
   return {
     idMeal: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    strMeal: String(json.name || "").trim(),
+    strMeal: dishName,
+    strMealThumb: imageForDish(dishName),
     strInstructions: String(json.instructions || "").trim(),
     strIngredients: Array.isArray(json.ingredients) ? json.ingredients : [],
     strCategory: region || "AI-suggested",
@@ -106,10 +122,12 @@ export async function tweakRecipeWithAI(recipe, instruction) {
   const json = extractJson(text);
   if (!json) return null;
 
+  const tweakedName = String(json.name || recipe.strMeal).trim();
   return {
     ...recipe,
     idMeal: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    strMeal: String(json.name || recipe.strMeal).trim(),
+    strMeal: tweakedName,
+    strMealThumb: recipe.strMealThumb || imageForDish(tweakedName),
     strIngredients: Array.isArray(json.ingredients) ? json.ingredients : (recipe.strIngredients || []),
     strInstructions: String(json.instructions || recipe.strInstructions).trim(),
     strCategory: recipe.strCategory || "AI-suggested",

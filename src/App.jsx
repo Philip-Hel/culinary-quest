@@ -371,7 +371,7 @@ export default function App() {
               </CQCard>
             )}
 
-            <RecipeCard recipe={recipe} />
+            <RecipeCard key={recipe?.idMeal || "none"} recipe={recipe} />
 
             {/* Bottom controls for the current recipe */}
             {recipe && (

@@ -265,12 +265,9 @@ export default function App() {
       }
     }
 
-    // 6) Optional AI (DeepSeek): add a fresh region-appropriate dish. It only
-    //    ever adds; the real verified recipes stay the foundation.
-    if (aiConfigured) {
-      const aiDish = await safe("DeepSeek", () => suggestAIDish(random));
-      if (aiDish) collected.push(aiDish);
-    }
+    // NOTE: No automatic DeepSeek call here. AI dishes are only drafted when the
+    // user explicitly clicks "AI Recipe Idea" / "New AI Idea" (newAiIdea), so
+    // picking a country stays fast and never spends an LLM call on its own.
 
     if (collected.length === 0) {
       setError("No recipes found for this country right now — try again!");

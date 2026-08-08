@@ -23,8 +23,10 @@ import {
 import { searchRecipesMulti, fetchSpoonacularRecipeDetails } from "./spoonacular";
 import { searchEdamamRecipes } from "./edamam";
 import { getOfflineRecipes } from "./offline";
-import { suggestAIDish, aiConfigured } from "./deepseek";
+import { suggestAIDish, tweakRecipeWithAI, aiConfigured } from "./deepseek";
 import FavoritesView from "./components/FavoritesView";
+import CountryPicker from "./components/CountryPicker";
+import AiTweakPanel from "./components/AiTweakPanel";
 import {
   getFavorites,
   addFavorite,
@@ -41,6 +43,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [view, setView] = useState("explore"); // "explore" | "saved"
   const [saved, setSaved] = useState(() => getFavorites());
+  const [tweakOpen, setTweakOpen] = useState(false);
+  const [note, setNote] = useState(null); // contextual hint (no key / no country)
 
   useEffect(() => {
     fetchRealCountries().then(setCountries);
@@ -69,53 +73,101 @@ export default function App() {
 
   const refreshSaved = () => setSaved(getFavorites());
 
-  const saveCurrent = () => {
+  // Single toggle: save when unsaved, unsave when saved (source-aware).
+  const toggleSaved = () => {
     if (!recipe) return;
-    addFavorite(recipe, {
-      country: recipe._country,
-      region: recipe._region,
-      subregion: recipe._subregion,
-      cuisine: recipe._cuisine,
-    });
+    if (isFavorite(recipe)) {
+      removeFavorite(recipe);
+    } else {
+      addFavorite(recipe, {
+        country: recipe._country,
+        region: recipe._region,
+        subregion: recipe._subregion,
+        cuisine: recipe._cuisine,
+      });
+    }
     refreshSaved();
   };
 
-  const unsaveCurrent = () => {
-    if (!recipe) return;
-    removeFavorite(recipe.idMeal);
-    refreshSaved();
-  };
-
-  const currentIsSaved = () => (recipe ? isFavorite(recipe.idMeal) : false);
+  const currentIsSaved = () => (recipe ? isFavorite(recipe) : false);
 
   // Open a saved recipe in the main card (without re-picking a country).
   const openSaved = (f) => {
     setCountry({ name: f._country, region: f._region, subregion: f._subregion });
     setRecipe(shownRecipe(f));
     setError(null);
+    setNote(null);
     setView("explore");
   };
 
-  // Ask DeepSeek for a fresh AI idea for the current country (replaces any AI one).
+  // Gate AI actions: need a DeepSeek key and a selected country.
+  const aiAllowed = () => {
+    if (!aiConfigured) {
+      setNote("Add a DeepSeek key (VITE_DEEPSEEK_API_KEY in .env) to enable AI.");
+      return false;
+    }
+    if (!country) {
+      setNote("Pick or choose a country first — then I can draft a dish for it.");
+      return false;
+    }
+    return true;
+  };
+
+  // Ask DeepSeek for a fresh AI idea for the current country. Shows a visible
+  // "AI is drafting…" state, then displays the dish; failures are never silent.
   const newAiIdea = async () => {
-    if (!aiConfigured || !country) return;
+    if (!aiAllowed() || !country) return;
+    setTweakOpen(false);
+    setNote(null);
     setLoading(true);
-    setError(null);
     try {
       const aiDish = await suggestAIDish(country);
-      setRecipe(aiDish ? shownRecipe(aiDish) : recipe);
-      if (!aiDish)
-        setError("The AI couldn't draft a dish right now — check your DeepSeek key.");
+      if (aiDish) {
+        setRecipe(shownRecipe(aiDish));
+        setError(null);
+      } else {
+        setError("The AI couldn't draft a dish right now — please try again.");
+      }
     } catch (err) {
       console.error("AI idea failed:", err);
-      setError("Something went wrong getting an AI idea.");
+      setError("Something went wrong getting an AI idea. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const pickRandomCountry = async () => {
-    const random = countries[Math.floor(Math.random() * countries.length)];
+  // Choose a specific country (from the picker) and run the local recipe flow.
+  const pickCountry = async (chosen) => {
+    if (!chosen) return;
+    setView("explore");
+    setNote(null);
+    await pickRandomCountry(chosen);
+  };
+
+  // Tweak the current recipe with AI (preset or free text).
+  const handleTweak = async (instruction) => {
+    if (!recipe || !aiAllowed()) return;
+    setNote(null);
+    setLoading(true);
+    try {
+      const tweaked = await tweakRecipeWithAI(recipe, instruction);
+      if (tweaked) {
+        setRecipe(shownRecipe(tweaked));
+        setTweakOpen(false);
+        setError(null);
+      } else {
+        setError("The AI couldn't tweak that recipe — please try again.");
+      }
+    } catch (err) {
+      console.error("AI tweak failed:", err);
+      setError("Something went wrong tweaking the recipe. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pickRandomCountry = async (target) => {
+    const random = target || countries[Math.floor(Math.random() * countries.length)];
     if (!random) return;
 
     setCountry(random);
@@ -124,78 +176,76 @@ export default function App() {
     setLoading(true);
     setError(null);
 
-    try {
-      const collected = [];
-
-      // 1) Primary: the country's actual cuisine via a *valid* TheMealDB area.
-      const area = resolveMealdbArea(random);
-      if (area) {
-        const areaMeals = await fetchRecipesByCuisine(area);
-        collected.push(...(areaMeals || []));
+    // Run each recipe source in its own try/catch so one failure can't wipe
+    // out every other source's results (they already fail-soft and return []).
+    const safe = async (label, fn) => {
+      try {
+        return await fn();
+      } catch (err) {
+        console.error(`[${label}] failed:`, err);
+        return [];
       }
+    };
 
-      // 2) Fallback: if the cuisine gave nothing, pull a rich category pool so
-      //    the recipe button never silently disappears.
-      if (collected.length === 0) {
-        const categoryIndex =
-          random.name.length % CATEGORY_FALLBACKS.length;
-        const categoryMeals = await fetchRecipesByCategory(
-          CATEGORY_FALLBACKS[categoryIndex]
-        );
-        collected.push(...(categoryMeals || []));
-      }
+    const collected = [];
 
-      // 3) Scale out: Spoonacular multi-angle search (free) — the country's
-      //    cuisine plus a rotating signature-ingredient keyword, de-duplicated,
-      //    so thin cuisines yield a much bigger pool without burning quota.
-      const spoonacularCuisine = resolveSpoonacularCuisine(random);
-      const spoonKeywords = resolveSpoonacularKeywords(random);
-      const spoonResults = await searchRecipesMulti({
-        cuisine: spoonacularCuisine,
-        keywords: spoonKeywords,
-      });
-      collected.push(...(spoonResults || []));
-
-      // 4) Scale out more: Edamam (optional, paid) fills remaining regional gaps.
-      const edamam = resolveEdamam(random);
-      const edamamResults = await searchEdamamRecipes(
-        edamam.keyword,
-        edamam.cuisineType
-      );
-      collected.push(...(edamamResults || []));
-
-      // 5) Offline curated pool: guaranteed dishes for cuisines the live APIs
-      //    can't cover (Pacific islands, regional African/Latin American, etc.).
-      //    Always safe, no key — dedupe by name so we don't repeat live finds.
-      const offlineResults = getOfflineRecipes(random);
-      if (offlineResults.length) {
-        const liveNames = new Set(
-          collected.map((r) => (r.strMeal || r.title || "").toLowerCase())
-        );
-        for (const r of offlineResults) {
-          if (!liveNames.has(r.strMeal.toLowerCase())) collected.push(r);
-        }
-      }
-
-      // 6) Optional AI (DeepSeek): when a key is configured, ask the model for a
-      //    fresh, region-appropriate dish to add to the pool. It only ever adds —
-      //    the real, verified recipes above stay the foundation.
-      if (aiConfigured) {
-        const aiDish = await suggestAIDish(random);
-        if (aiDish) collected.push(aiDish);
-      }
-
-      if (collected.length === 0) {
-        setError("No recipes found for this country right now — try again!");
-      } else {
-        setRecipes(collected.map(toMeal));
-      }
-    } catch (err) {
-      console.error("Failed to load recipes:", err);
-      setError("Something went wrong loading recipes. Please try again.");
-    } finally {
-      setLoading(false);
+    // 1) Primary: the country's actual cuisine via a *valid* TheMealDB area.
+    const area = resolveMealdbArea(random);
+    if (area) {
+      const areaMeals = await safe("TheMealDB", () => fetchRecipesByCuisine(area));
+      collected.push(...(areaMeals || []));
     }
+
+    // 2) Fallback: if the cuisine gave nothing, pull a rich category pool so
+    //    the recipe button never silently disappears.
+    if (collected.length === 0) {
+      const categoryIndex = random.name.length % CATEGORY_FALLBACKS.length;
+      const categoryMeals = await safe("Category", () =>
+        fetchRecipesByCategory(CATEGORY_FALLBACKS[categoryIndex])
+      );
+      collected.push(...(categoryMeals || []));
+    }
+
+    // 3) Scale out: Spoonacular multi-angle search (free) — the country's
+    //    cuisine plus a rotating signature-ingredient keyword, merged.
+    const spoonacularCuisine = resolveSpoonacularCuisine(random);
+    const spoonKeywords = resolveSpoonacularKeywords(random);
+    const spoonResults = await safe("Spoonacular", () =>
+      searchRecipesMulti({ cuisine: spoonacularCuisine, keywords: spoonKeywords })
+    );
+    collected.push(...(spoonResults || []));
+
+    // 4) Scale out more: Edamam (optional, paid) fills remaining regional gaps.
+    const edamam = resolveEdamam(random);
+    const edamamResults = await safe("Edamam", () =>
+      searchEdamamRecipes(edamam.keyword, edamam.cuisineType)
+    );
+    collected.push(...(edamamResults || []));
+
+    // 5) Offline curated pool — safe, no key; dedupe by name vs live results.
+    const offlineResults = getOfflineRecipes(random);
+    if (offlineResults.length) {
+      const liveNames = new Set(
+        collected.map((r) => (r.strMeal || r.title || "").toLowerCase())
+      );
+      for (const r of offlineResults) {
+        if (!liveNames.has(r.strMeal.toLowerCase())) collected.push(r);
+      }
+    }
+
+    // 6) Optional AI (DeepSeek): add a fresh region-appropriate dish. It only
+    //    ever adds; the real verified recipes stay the foundation.
+    if (aiConfigured) {
+      const aiDish = await safe("DeepSeek", () => suggestAIDish(random));
+      if (aiDish) collected.push(aiDish);
+    }
+
+    if (collected.length === 0) {
+      setError("No recipes found for this country right now — try again!");
+    } else {
+      setRecipes(collected.map(toMeal));
+    }
+    setLoading(false);
   };
 
   const pickRandomRecipe = async () => {
@@ -225,9 +275,6 @@ export default function App() {
       setLoading(false);
     }
   };
-
-  const showRecipeButton =
-    country && recipes.length > 0 && !loading && !error;
 
   const savedCount = saved.length;
 
@@ -265,15 +312,37 @@ export default function App() {
             favorites={saved}
             onOpen={openSaved}
             onRemove={(f) => {
-              removeFavorite(f.idMeal);
+              removeFavorite(f); // source-aware (uses _favId)
               refreshSaved();
             }}
           />
         ) : (
           <>
-            <CQButton onClick={pickRandomCountry} disabled={loading}>
-              {loading ? "Exploring…" : "Pick Random Country"}
-            </CQButton>
+            {/* Hero controls: choose/pick a country, then pick local or AI */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <CQButton onClick={() => pickRandomCountry()} disabled={loading}>
+                  {loading ? "Loading…" : "Random country"}
+                </CQButton>
+                <CountryPicker countries={countries} onPick={pickCountry} />
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <CQButton onClick={pickRandomRecipe} disabled={!country || loading}>
+                  Pick Local Recipe{recipes.length ? ` (${recipes.length})` : ""}
+                </CQButton>
+                <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
+                  {loading ? "AI drafting…" : "AI Recipe Idea"}
+                </CQButton>
+              </div>
+            </div>
+
+            {/* Contextual hint (e.g. add a DeepSeek key, pick a country first) */}
+            {note && (
+              <p className="text-center text-sm text-cq-olive dark:text-cq-ring">
+                {note}
+              </p>
+            )}
 
             <CountryCard country={country} />
 
@@ -302,29 +371,30 @@ export default function App() {
               </CQCard>
             )}
 
-            {showRecipeButton && (
-              <CQButton onClick={pickRandomRecipe}>
-                Pick Random Recipe ({recipes.length})
-              </CQButton>
-            )}
-
             <RecipeCard recipe={recipe} />
 
-            {/* Toolbar for the current recipe */}
+            {/* Bottom controls for the current recipe */}
             {recipe && (
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <CQButton variant="secondary" onClick={saveCurrent}>
-                  {currentIsSaved() ? "♥ Saved" : "♥ Save this recipe"}
-                </CQButton>
-                <CQButton variant="secondary" onClick={unsaveCurrent}>
-                  Remove from saved
-                </CQButton>
-                {aiConfigured && (
-                  <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
-                    {loading ? "Drafting…" : "New AI idea"}
+              <>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <CQButton variant="secondary" onClick={toggleSaved}>
+                    {currentIsSaved() ? "♥ Saved" : "♥ Save this recipe"}
                   </CQButton>
+                  <CQButton variant="secondary" onClick={() => pickRandomRecipe()} disabled={loading}>
+                    New Local Recipe
+                  </CQButton>
+                  <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
+                    {loading ? "AI drafting…" : "New AI Idea"}
+                  </CQButton>
+                  <CQButton variant="secondary" onClick={() => setTweakOpen((o) => !o)} disabled={loading}>
+                    Tweak with AI
+                  </CQButton>
+                </div>
+
+                {tweakOpen && (
+                  <AiTweakPanel busy={loading} onApply={handleTweak} onClose={() => setTweakOpen(false)} />
                 )}
-              </div>
+              </>
             )}
           </>
         )}

@@ -69,12 +69,21 @@ export default function FavoritesView({ favorites, onOpen, onRemove }) {
         <ul className="mt-5 divide-y divide-cq-border/60 dark:divide-cq-darkBorder/60">
           {filtered.map((f) => (
             <li key={f._favId} className="flex items-center gap-4 py-3">
-              <img
-                src={f.strMealThumb}
-                alt=""
-                className="h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60"
-                onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
-              />
+              {f.strMealThumb ? (
+                <img
+                  src={f.strMealThumb}
+                  alt=""
+                  className="h-14 w-14 shrink-0 rounded-lg object-cover ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60"
+                  onError={(e) => { e.currentTarget.style.visibility = "hidden"; }}
+                />
+              ) : (
+                <span
+                  className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-cq-accentSoft/40 dark:bg-cq-darkSurface2 text-xl ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60"
+                  aria-hidden
+                >
+                  🍽
+                </span>
+              )}
               <button
                 type="button"
                 onClick={() => onOpen(f)}

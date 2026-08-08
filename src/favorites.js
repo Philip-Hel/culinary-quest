@@ -47,22 +47,30 @@ export function addFavorite(recipe, meta = {}) {
   return list;
 }
 
-export function removeFavorite(idMeal) {
-  const list = load().filter((f) => String(f.idMeal) !== String(idMeal));
-  save(list);
-  return list;
-}
-
+// Remove a saved recipe by its stable key (source + id). Source-aware, so a
+// numeric id collision across sources can't delete the wrong recipe.
 export function removeFavoriteByFavId(favId) {
   const list = load().filter((f) => f._favId !== favId);
   save(list);
   return list;
 }
 
+// Source-aware removal that accepts either a full recipe or its _favId.
+export function removeFavorite(recipeOrFavId) {
+  const favId = typeof recipeOrFavId === "string"
+    ? recipeOrFavId
+    : recipeOrFavId?._favId || favoriteId(recipeOrFavId);
+  return removeFavoriteByFavId(favId);
+}
+
 export function getFavorites() {
   return load();
 }
 
-export function isFavorite(idMeal) {
-  return load().some((f) => String(f.idMeal) === String(idMeal));
+// Source-aware check: does a recipe (by its stable key) already exist?
+export function isFavorite(recipeOrFavId) {
+  const favId = typeof recipeOrFavId === "string"
+    ? recipeOrFavId
+    : recipeOrFavId?._favId || favoriteId(recipeOrFavId);
+  return load().some((f) => f._favId === favId);
 }

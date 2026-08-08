@@ -427,22 +427,21 @@ const CONCEPT_REGION_TAG = {
 };
 
 export function resolveOfflineRegions({ name, region, subregion }) {
-  const tags = new Set();
-  const subnorm = String(subregion || "").toLowerCase();
-  const regnorm = String(region || "").toLowerCase();
-  const add = (t) => t && tags.add(t);
+  // Prefer the most specific geographic tag — subregion first, then region.
+  // (A union of both would leak neighboring regions: e.g. every African
+  // country would also pull East-African dishes, Europe would pull Southern
+  // European, the Americas both North+South.)
+  const sub = String(subregion || "").toLowerCase();
+  const reg = String(region || "").toLowerCase();
 
-  // Prefer the precise geographic tag (subregion, then region).
-  add(REGION_TAGS[subnorm]);
-  add(REGION_TAGS[regnorm]);
-
-  // Only when no precise geographic tag matched, fall back to the broad
-  // cuisine-concept tag so every country in that cuisine still gets coverage
-  // (e.g. any African country not in a tagged subregion).
-  if (tags.size === 0) {
-    const concept = lookupConcept(name, region, subregion) || "";
-    for (const t of CONCEPT_REGION_TAG[concept] || []) tags.add(t);
+  const specific = REGION_TAGS[sub] || REGION_TAGS[reg];
+  if (specific) {
+    return new Set([specific]);
   }
 
-  return tags;
+  // No geographic tag (cross-region / remote places): fall back to the broad
+  // cuisine-concept tag so such countries still get offline coverage.
+  const concept = lookupConcept(name, region, subregion) || "";
+  const conceptTags = CONCEPT_REGION_TAG[concept] || [];
+  return new Set(conceptTags.slice(0, 1));
 }

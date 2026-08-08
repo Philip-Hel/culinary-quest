@@ -224,14 +224,38 @@ export async function tweakRecipeWithAI(recipe, instruction) {
 // Pull the first JSON object out of a model reply (it may wrap in fences).
 function extractJson(text) {
   if (!text) return null;
+  // Prefer a code fence, but in any case scan for a balanced JSON object from
+  // the first '{'. A naive indexOf/lastIndexOf window breaks when the reply
+  // contains other braces (e.g. quoted strings or prose), which is a common
+  // source of intermittent "the AI couldn't draft a dish" failures.
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const candidate = fenced ? fenced[1] : text;
-  const start = candidate.indexOf("{");
-  const end = candidate.lastIndexOf("}");
-  if (start === -1 || end === -1) return null;
-  try {
-    return JSON.parse(candidate.slice(start, end + 1));
-  } catch {
-    return null;
+  const base = fenced ? fenced[1] : text;
+  const start = base.indexOf("{");
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < base.length; i++) {
+    const ch = base[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') inString = true;
+    else if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        const candidate = base.slice(start, i + 1);
+        try {
+          return JSON.parse(candidate);
+        } catch {
+          return null;
+        }
+      }
+    }
   }
+  return null;
 }

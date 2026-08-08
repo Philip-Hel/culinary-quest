@@ -1,0 +1,31 @@
+# Caddy reverse proxy for Culinary Quest.
+#
+# Serves the app over HTTPS at https://<your-domain>, backed by a publicly
+# valid Let's Encrypt cert. Two ways to obtain the cert:
+#
+#   A) DNS-01 against Cloudflare (like the reference project) — the app never
+#      needs to be reachable from the internet. Requires a Cloudflare API token,
+#      a Caddy built with the caddy-dns/cloudflare plugin (see
+#      install-caddy.bat), and a DNS record pointing this domain at your server.
+#
+#   B) HTTP-01 (simplest) — comment out the `tls { dns ... }` block below and
+#      Caddy will get a cert via HTTP. This requires inbound TCP 80 (and 443)
+#      forwarded to this server, and a DNS A/AAAA record for the domain.
+#
+# REQUIREMENTS
+#   1. A DNS record:  <your-domain>  ->  <your-server-IP>
+#   2. The app running on localhost:5173 (npm start / deploy\start-server.bat)
+#   3. For DNS-01 only: the Cloudflare token set as CF_DNS_API_TOKEN
+
+{
+    # email admin@your-domain.com
+}
+
+https://your-domain.com {
+    reverse_proxy localhost:5173
+
+    # Publicly-valid cert via DNS-01 on Cloudflare (comment out to use HTTP-01).
+    tls {
+        dns cloudflare {env.CF_DNS_API_TOKEN}
+    }
+}

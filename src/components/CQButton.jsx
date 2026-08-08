@@ -1,4 +1,4 @@
-export default function CQButton({ children, disabled = false, variant = "primary", ...props }) {
+export default function CQButton({ children, disabled = false, variant = "primary", className = "", ...props }) {
   const base =
     "inline-flex items-center justify-center gap-2 font-medium rounded-2xl px-7 py-3.5 transition-all duration-300 ease-cq-smooth select-none";
 
@@ -18,7 +18,7 @@ export default function CQButton({ children, disabled = false, variant = "primar
       {...props}
       type="button"
       disabled={disabled}
-      className={`${base} ${styles} ${state}`}
+      className={`${base} ${styles} ${state} ${className}`}
     >
       {children}
     </button>

@@ -2,9 +2,9 @@
 //
 // The public REST Countries API (restcountries.com/v3.1/all) was deprecated and
 // now requires its own API key, so we no longer call it. Instead we ship a
-// static snapshot (src/countries.json: name, ISO code, region, subregion) and
-// pull flag images from the free, keyless flagcdn.com CDN. This never breaks,
-// needs no key, and works offline.
+// static snapshot (src/countries.json: name, ISO code, region, subregion,
+// capital, area, latlng, languages) and pull flag images from the free, keyless
+// flagcdn.com CDN. This never breaks, needs no key, and works offline.
 import countries from "./countries.json";
 
 export async function fetchRealCountries() {
@@ -14,6 +14,10 @@ export async function fetchRealCountries() {
       flag: `https://flagcdn.com/w80/${c.cca2.toLowerCase()}.png`,
       region: c.region,
       subregion: c.subregion,
+      capital: c.capital,
+      area: c.area,
+      latlng: c.latlng,
+      languages: c.languages,
     }));
   } catch (err) {
     console.error("Failed to load country data:", err);

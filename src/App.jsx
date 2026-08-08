@@ -4,6 +4,8 @@ import CQButton from "./components/CQButton";
 import CQCard from "./components/CQCard";
 import CountryCard from "./components/CountryCard";
 import RecipeCard from "./components/RecipeCard";
+import WorldMap from "./components/WorldMap";
+import CountryInfo from "./components/CountryInfo";
 
 import {
   fetchRealCountries,
@@ -337,20 +339,20 @@ export default function App() {
             }}
           />
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:items-start">
-            {/* ---- Left sidebar: country controls + compact flag ---- */}
+          <div className="grid gap-6 lg:grid-cols-[280px_1fr] lg:items-start">
+            {/* ---- Left sidebar: country controls + compact flag (vertical stack) ---- */}
             <aside className="flex flex-col gap-4 lg:sticky lg:top-4">
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
-                  <CQButton onClick={() => pickRandomCountry()} disabled={loading}>
-                    {loading ? "Loading…" : "Random country"}
-                  </CQButton>
-                  <CQButton onClick={pickRandomRecipe} disabled={!country || loading}>
-                    Pick Local Recipe{recipes.length ? ` (${recipes.length})` : ""}
-                  </CQButton>
+              <div className="flex flex-col gap-2">
+                <CQButton onClick={() => pickRandomCountry()} disabled={loading} className="w-full">
+                  {loading ? "Loading…" : "Random country"}
+                </CQButton>
+                <CQButton onClick={pickRandomRecipe} disabled={!country || loading} className="w-full">
+                  Pick Local Recipe{recipes.length ? ` (${recipes.length})` : ""}
+                </CQButton>
+                <div className="flex justify-center">
+                  <CountryPicker countries={countries} onPick={pickCountry} />
                 </div>
-                <CountryPicker countries={countries} onPick={pickCountry} />
-                <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
+                <CQButton variant="secondary" onClick={newAiIdea} disabled={loading} className="w-full">
                   {loading ? "AI drafting…" : "AI Recipe Idea"}
                 </CQButton>
               </div>
@@ -365,7 +367,7 @@ export default function App() {
               <CountryCard country={country} compact />
             </aside>
 
-            {/* ---- Right main: the recipe ---- */}
+            {/* ---- Right main: startup map / country info / recipe ---- */}
             <section className="flex min-w-0 flex-col gap-4">
               {loading && (
                 <CQCard className="w-full">
@@ -392,11 +394,10 @@ export default function App() {
                 </CQCard>
               )}
 
-              <RecipeCard key={recipe?.idMeal || "none"} recipe={recipe} />
-
-              {/* Controls for the current recipe */}
-              {recipe && (
+              {/* The recipe (or country info / startup map when none selected) */}
+              {recipe ? (
                 <>
+                  <RecipeCard key={recipe?.idMeal || "none"} recipe={recipe} />
                   <div className="flex flex-wrap items-center justify-center gap-3">
                     <CQButton variant="secondary" onClick={toggleSaved}>
                       {currentIsSaved() ? "♥ Saved" : "♥ Save this recipe"}
@@ -411,11 +412,21 @@ export default function App() {
                       Tweak with AI
                     </CQButton>
                   </div>
-
                   {tweakOpen && (
                     <AiTweakPanel busy={loading} onApply={handleTweak} onClose={() => setTweakOpen(false)} />
                   )}
                 </>
+              ) : country ? (
+                <CountryInfo country={country} />
+              ) : (
+                <CQCard className="w-full p-6">
+                  <div className="mx-auto w-64 max-w-full">
+                    <WorldMap />
+                  </div>
+                  <p className="mt-4 text-center font-serif italic text-cq-muted dark:text-cq-darkMuted">
+                    Pick a country to begin the journey.
+                  </p>
+                </CQCard>
               )}
             </section>
           </div>

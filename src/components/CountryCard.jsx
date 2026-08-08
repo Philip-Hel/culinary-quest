@@ -13,8 +13,33 @@ function Chip({ label, value }) {
   );
 }
 
-export default function CountryCard({ country }) {
+export default function CountryCard({ country, compact = false }) {
   if (!country) return null;
+
+  if (compact) {
+    return (
+      <CQCard className="w-full p-4">
+        <div className="flex items-center gap-4">
+          {country.flag && (
+            <img
+              src={country.flag}
+              alt={`Flag of ${country.name}`}
+              className="h-12 w-16 shrink-0 rounded-md object-cover ring-1 ring-cq-border/50 dark:ring-cq-darkBorder/60"
+            />
+          )}
+          <div className="min-w-0">
+            <h2 className="truncate font-serif text-xl font-bold text-cq-text dark:text-cq-darkText">
+              {country.name}
+            </h2>
+            <p className="truncate text-sm text-cq-muted dark:text-cq-darkMuted">
+              {country.region}
+              {country.subregion ? ` · ${country.subregion}` : ""}
+            </p>
+          </div>
+        </div>
+      </CQCard>
+    );
+  }
 
   return (
     <CQCard className="w-full overflow-hidden p-0">

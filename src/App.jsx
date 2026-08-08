@@ -300,9 +300,9 @@ export default function App() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col gap-5">
         {/* View switcher */}
-        <nav className="mt-1 inline-flex rounded-full border border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/70 dark:bg-cq-darkSurface2/60 p-1 text-sm font-medium">
+        <nav className="mt-2 inline-flex self-center rounded-full border border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/70 dark:bg-cq-darkSurface2/60 p-1 text-sm font-medium">
           <button
             type="button"
             onClick={() => setView("explore")}
@@ -337,86 +337,88 @@ export default function App() {
             }}
           />
         ) : (
-          <>
-            {/* Hero controls: choose/pick a country, then pick local or AI */}
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <CQButton onClick={() => pickRandomCountry()} disabled={loading}>
-                  {loading ? "Loading…" : "Random country"}
-                </CQButton>
+          <div className="grid gap-6 lg:grid-cols-[340px_1fr] lg:items-start">
+            {/* ---- Left sidebar: country controls + compact flag ---- */}
+            <aside className="flex flex-col gap-4 lg:sticky lg:top-4">
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                  <CQButton onClick={() => pickRandomCountry()} disabled={loading}>
+                    {loading ? "Loading…" : "Random country"}
+                  </CQButton>
+                  <CQButton onClick={pickRandomRecipe} disabled={!country || loading}>
+                    Pick Local Recipe{recipes.length ? ` (${recipes.length})` : ""}
+                  </CQButton>
+                </div>
                 <CountryPicker countries={countries} onPick={pickCountry} />
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <CQButton onClick={pickRandomRecipe} disabled={!country || loading}>
-                  Pick Local Recipe{recipes.length ? ` (${recipes.length})` : ""}
-                </CQButton>
                 <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
                   {loading ? "AI drafting…" : "AI Recipe Idea"}
                 </CQButton>
               </div>
-            </div>
 
-            {/* Contextual hint (e.g. add a DeepSeek key, pick a country first) */}
-            {note && (
-              <p className="text-center text-sm text-cq-olive dark:text-cq-ring">
-                {note}
-              </p>
-            )}
+              {/* Contextual hint (e.g. add a DeepSeek key, pick a country first) */}
+              {note && (
+                <p className="text-center text-sm text-cq-olive dark:text-cq-ring">
+                  {note}
+                </p>
+              )}
 
-            <CountryCard country={country} />
+              <CountryCard country={country} compact />
+            </aside>
 
-            {loading && (
-              <CQCard className="w-full">
-                <div className="flex items-center justify-center gap-3 text-cq-muted dark:text-cq-darkMuted">
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-cq-accent/30 border-t-cq-accent" />
-                  <p className="font-medium">Searching the world&apos;s kitchens…</p>
-                </div>
-              </CQCard>
-            )}
+            {/* ---- Right main: the recipe ---- */}
+            <section className="flex min-w-0 flex-col gap-4">
+              {loading && (
+                <CQCard className="w-full">
+                  <div className="flex items-center justify-center gap-3 text-cq-muted dark:text-cq-darkMuted">
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-cq-accent/30 border-t-cq-accent" />
+                    <p className="font-medium">Searching the world&apos;s kitchens…</p>
+                  </div>
+                </CQCard>
+              )}
 
-            {error && (
-              <CQCard className="w-full">
-                <div className="flex items-center justify-center gap-3">
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-cq-primary/10 text-cq-primary">
-                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="9" />
-                      <path d="M12 7v6M12 16.5v.5" />
-                    </svg>
-                  </span>
-                  <p className="font-medium text-cq-primary dark:text-cq-ring">
-                    {error}
-                  </p>
-                </div>
-              </CQCard>
-            )}
+              {error && (
+                <CQCard className="w-full">
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-cq-primary/10 text-cq-primary">
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v6M12 16.5v.5" />
+                      </svg>
+                    </span>
+                    <p className="font-medium text-cq-primary dark:text-cq-ring">
+                      {error}
+                    </p>
+                  </div>
+                </CQCard>
+              )}
 
-            <RecipeCard key={recipe?.idMeal || "none"} recipe={recipe} />
+              <RecipeCard key={recipe?.idMeal || "none"} recipe={recipe} />
 
-            {/* Bottom controls for the current recipe */}
-            {recipe && (
-              <>
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <CQButton variant="secondary" onClick={toggleSaved}>
-                    {currentIsSaved() ? "♥ Saved" : "♥ Save this recipe"}
-                  </CQButton>
-                  <CQButton variant="secondary" onClick={() => pickRandomRecipe()} disabled={loading}>
-                    New Local Recipe
-                  </CQButton>
-                  <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
-                    {loading ? "AI drafting…" : "New AI Idea"}
-                  </CQButton>
-                  <CQButton variant="secondary" onClick={() => setTweakOpen((o) => !o)} disabled={loading}>
-                    Tweak with AI
-                  </CQButton>
-                </div>
+              {/* Controls for the current recipe */}
+              {recipe && (
+                <>
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <CQButton variant="secondary" onClick={toggleSaved}>
+                      {currentIsSaved() ? "♥ Saved" : "♥ Save this recipe"}
+                    </CQButton>
+                    <CQButton variant="secondary" onClick={() => pickRandomRecipe()} disabled={loading}>
+                      New Local Recipe
+                    </CQButton>
+                    <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
+                      {loading ? "AI drafting…" : "New AI Idea"}
+                    </CQButton>
+                    <CQButton variant="secondary" onClick={() => setTweakOpen((o) => !o)} disabled={loading}>
+                      Tweak with AI
+                    </CQButton>
+                  </div>
 
-                {tweakOpen && (
-                  <AiTweakPanel busy={loading} onApply={handleTweak} onClose={() => setTweakOpen(false)} />
-                )}
-              </>
-            )}
-          </>
+                  {tweakOpen && (
+                    <AiTweakPanel busy={loading} onApply={handleTweak} onClose={() => setTweakOpen(false)} />
+                  )}
+                </>
+              )}
+            </section>
+          </div>
         )}
       </div>
     </PageLayout>

@@ -29,7 +29,7 @@ export default function DarkModeToggle() {
       onClick={() => setDark((d) => !d)}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       className="
-        fixed top-5 right-5 z-50
+        fixed bottom-5 left-5 z-50
         grid h-12 w-12 place-items-center text-xl
         bg-cq-surface/80 dark:bg-cq-darkSurface2/80
         backdrop-blur

@@ -25,7 +25,7 @@ import {
 import { searchRecipesMulti, fetchSpoonacularRecipeDetails } from "./spoonacular";
 import { searchEdamamRecipes } from "./edamam";
 import { getOfflineRecipes } from "./offline";
-import { suggestAIDish, tweakRecipeWithAI, aiConfigured } from "./deepseek";
+import { suggestAIDish, tweakRecipeWithAI, aiConfigured, fetchFoodImages } from "./deepseek";
 import FavoritesView from "./components/FavoritesView";
 import CountryPicker from "./components/CountryPicker";
 import AiTweakPanel from "./components/AiTweakPanel";
@@ -295,7 +295,19 @@ export default function App() {
         details = await fetchRecipeDetails(random.idMeal);
       }
 
-      setRecipe(details ? shownRecipe(toMeal(details)) : null);
+      let shown = details ? shownRecipe(toMeal(details)) : null;
+
+      // Local recipes sometimes have no photo (e.g. offline/Edamam entries, or
+      // empty-URL thumbs). Backfill one (or several for the carousel) from the
+      // Wikimedia food lookup so the banner isn't a bare placeholder.
+      if (shown && !(Array.isArray(shown.images) && shown.images.length)) {
+        const photos = await fetchFoodImages(shown.strMeal);
+        if (photos.length) {
+          shown = { ...shown, images: photos, strMealThumb: photos[0] };
+        }
+      }
+
+      setRecipe(shown);
       if (!details) setError("Couldn't load that recipe — pick another!");
     } catch (err) {
       console.error("Failed to load recipe details:", err);

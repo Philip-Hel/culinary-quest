@@ -62,7 +62,7 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
 // To keep photos food-only, queries append a literal "food" tag and we prefer
 // titles that mention the dish or a common food term. Returns [] only when
 // nothing is found (RecipeCard then shows its themed placeholder).
-async function fetchFoodImages(name) {
+export async function fetchFoodImages(name) {
   const slug = String(name || "")
     .toLowerCase()
     .normalize("NFKD")

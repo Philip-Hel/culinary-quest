@@ -419,14 +419,18 @@ export default function App() {
               ) : country ? (
                 <CountryInfo country={country} />
               ) : (
-                <CQCard className="w-full p-6">
-                  <div className="mx-auto w-64 max-w-full">
-                    <WorldMap />
+                <div className="relative w-full overflow-hidden rounded-2xl border border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/70 dark:bg-cq-darkSurface2/60 shadow-cq">
+                  {/* Themed world map fills the whole right panel */}
+                  <WorldMap size="tall" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-3 flex flex-col items-center gap-1 text-center">
+                    <p className="font-serif text-lg italic text-cq-text dark:text-cq-darkText">
+                      Pick a country to begin the journey.
+                    </p>
+                    <p className="text-xs uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted">
+                      Choose Random country, or pick one with the map
+                    </p>
                   </div>
-                  <p className="mt-4 text-center font-serif italic text-cq-muted dark:text-cq-darkMuted">
-                    Pick a country to begin the journey.
-                  </p>
-                </CQCard>
+                </div>
               )}
             </section>
           </div>

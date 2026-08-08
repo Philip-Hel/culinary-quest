@@ -24,9 +24,9 @@ export default function CountryInfo({ country }) {
   return (
     <div className="flex flex-col gap-4">
       <CQCard className="w-full p-5">
-        {/* Location map with marker */}
+        {/* Location map with marker + highlighted country */}
         <div className="w-56 max-w-full mx-auto">
-          <WorldMap latlng={country.latlng} label={country.name} />
+          <WorldMap latlng={country.latlng} label={country.name} highlight={country.name} />
         </div>
         <p className="mt-2 text-center text-xs uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted">
           {country.name} · located here

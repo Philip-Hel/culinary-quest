@@ -160,74 +160,175 @@ body {
 }
 
 /* ------------------------------
-   Nautical chart map (WorldMap)
+   Vintage nautical chart map (WorldMap)
 --------------------------------*/
 
-/* Sea bed — a muted vintage-blue wash that works in both themes. */
+/* Aged parchment sea — works in both themes. */
 .cq-sea {
-  fill: #dfe6e6;
+  fill: #ece1c8;
 }
 .dark .cq-sea {
-  fill: #1f1c16;
+  fill: #1d1911;
 }
 
-/* Continents inherit currentColor (set by the cq- text token on the wrapper),
-   so the land matches the theme's brand/ring colour. */
+/* Real land shapes from Natural Earth — parchment fill + sepia coastline. */
 .cq-land {
-  fill: currentColor;
-  fill-opacity: 0.55;
+  fill: #d9c9a3;
+  stroke: #8a6d3b;
+  stroke-width: 0.4;
+  stroke-opacity: 0.5;
 }
 .dark .cq-land {
-  fill-opacity: 0.7;
-  fill: currentColor;
+  fill: #3a3121;
+  stroke: #8a7a55;
+  stroke-opacity: 0.65;
 }
 
-/* Graticule / rhumb lines — faint sepia in light, faint warm in dark. */
-.cq-graticule line,
-.cq-graticule path {
-  stroke: #2b2620;
-  stroke-opacity: 0.14;
-  stroke-width: 0.3;
+/* A chosen country, highlighted gold like a map annotation. */
+.cq-land-hl {
+  fill: #b8892f;
+  fill-opacity: 0.55;
+  stroke: #7a5a1e;
+  stroke-width: 1;
 }
-.dark .cq-graticule line,
+.dark .cq-land-hl {
+  fill: #c98a4b;
+  fill-opacity: 0.5;
+  stroke: #e9b98b;
+  stroke-width: 1;
+}
+
+/* Latitude/longitude graticule */
+.cq-graticule path {
+  fill: none;
+  stroke: #6d5636;
+  stroke-opacity: 0.3;
+  stroke-width: 0.4;
+}
 .dark .cq-graticule path {
   stroke: #c9b9a2;
-  stroke-opacity: 0.16;
-  stroke-width: 0.35;
+  stroke-opacity: 0.14;
 }
+
+/* Rhumb lines radiating from compass points */
 .cq-rhumb {
-  stroke-opacity: 0.1;
-  stroke-width: 0.3;
+  stroke: #6d5636;
+  stroke-opacity: 0.12;
+  stroke-width: 0.5;
 }
 .dark .cq-rhumb {
+  stroke: #c9b9a2;
   stroke-opacity: 0.1;
+}
+
+/* Degree ticks + labels along the frame */
+.cq-tick {
+  stroke: #6d5636;
+  stroke-opacity: 0.7;
+  stroke-width: 0.8;
+}
+.dark .cq-tick {
+  stroke: #c9b9a2;
+  stroke-opacity: 0.5;
+}
+.cq-degree {
+  fill: #6d5636;
+  fill-opacity: 0.8;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 8.5px;
+}
+.dark .cq-degree {
+  fill: #c9b9a2;
+  fill-opacity: 0.6;
+}
+
+/* Double chart frame */
+.cq-frame-outer {
+  fill: none;
+  stroke: #6d5636;
+  stroke-opacity: 0.75;
+  stroke-width: 1.1;
+}
+.cq-frame-inner {
+  fill: none;
+  stroke: #6d5636;
+  stroke-opacity: 0.45;
+  stroke-width: 0.5;
+}
+.dark .cq-frame-outer {
+  stroke: #c9b9a2;
+  stroke-opacity: 0.6;
+}
+.dark .cq-frame-inner {
+  stroke: #c9b9a2;
+  stroke-opacity: 0.35;
 }
 
 /* Compass rose */
 .cq-compass-petal {
-  fill: currentColor;
-  fill-opacity: 0.5;
-  stroke: currentColor;
-  stroke-opacity: 0.4;
-  stroke-width: 0.3;
-}
-.cq-compass-n {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 5px;
-  fill: currentColor;
+  fill: #6d5636;
   fill-opacity: 0.85;
 }
-
-/* Map border frame */
-.cq-frame rect {
-  stroke: currentColor;
-  stroke-opacity: 0.35;
+.cq-compass-petal-sub {
+  fill: #8a6d3b;
+  fill-opacity: 0.6;
 }
-.cq-frame rect:first-child {
+.cq-compass-ring {
+  fill: none;
+  stroke: #6d5636;
+  stroke-opacity: 0.7;
   stroke-width: 0.6;
 }
-.cq-frame rect:last-child {
-  stroke-width: 0.3;
+.cq-compass-hub {
+  fill: #6d5636;
+  fill-opacity: 0.9;
+}
+.cq-compass-letter,
+.cq-compass-n {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 11px;
+  fill: #6d5636;
+  fill-opacity: 0.9;
+}
+.cq-compass-n {
+  fill: #b8892f;
+  fill-opacity: 1;
+}
+.dark .cq-compass-petal {
+  fill: #c9b9a2;
+  fill-opacity: 0.75;
+}
+.dark .cq-compass-petal-sub {
+  fill: #8a7a55;
+  fill-opacity: 0.55;
+}
+.dark .cq-compass-ring,
+.dark .cq-compass-hub {
+  stroke: #c9b9a2;
+  fill: #c9b9a2;
+  fill-opacity: 0.8;
+}
+.dark .cq-compass-letter {
+  fill: #c9b9a2;
+}
+.dark .cq-compass-n {
+  fill: #c98a4b;
+}
+
+/* Age stains + vignette layered over the chart for a worn, old-map feel */
+.cq-map-age {
+  opacity: 1;
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(139, 109, 59, 0.07), transparent 45%),
+    radial-gradient(ellipse at 82% 74%, rgba(139, 109, 59, 0.09), transparent 50%),
+    radial-gradient(ellipse at 55% 8%, rgba(122, 90, 30, 0.05), transparent 40%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(106, 86, 54, 0.22) 100%);
+}
+.dark .cq-map-age {
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(201, 138, 75, 0.06), transparent 45%),
+    radial-gradient(ellipse at 82% 74%, rgba(201, 138, 75, 0.08), transparent 50%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
 }
 
 /* Subtle grain overlay for the masthead (very light) */

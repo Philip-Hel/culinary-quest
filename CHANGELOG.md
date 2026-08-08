@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Bundled offline recipe pool** (`src/offline.js` + `src/recipes.json`) for cuisines live APIs don't cover (Pacific islands, regional African, Latin American, Middle Eastern). Keyless, offline, never breaks; live sources stay primary.
 - **DeepSeek AI suggestions** (`src/deepseek.js`, paid/optional) — with `VITE_DEEPSEEK_API_KEY` set, the app asks the model for a random region-appropriate dish and adds it to the pool, marked "Suggested by AI" (AI text is unverified; real recipes remain primary).
 - **Recipe Book (Favorites)** (`src/favorites.js` + `FavoritesView.jsx`) — save dishes you like and search them by country, cuisine, or name; filter by cuisine. Persisted in `localStorage`.
+- **Server-backed storage + backups** (`server.mjs` + `favorites.js`) — when deployed, saved recipes also live on the server in `data/favorites.json` (durable across devices/browser wipes) via `GET/PUT /api/favorites`, and are auto-backed up to a configurable folder (`CQ_BACKUP_DIR`). `localStorage` remains a seamless offline/dev fallback.
 - **`src/cuisines.js`** — resolves any country to a working recipe source (valid TheMealDB area → category fallback → Spoonacular → Edamam).
 - **Dark Mode toggle** (`DarkModeToggle.jsx`) — persistent via `localStorage`, defaults to system preference.
 - **Loading & error states** while fetching recipes, with friendly inline messages.

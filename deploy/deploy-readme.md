@@ -5,9 +5,15 @@ and is reachable over **HTTPS at your own domain**, backed by the same approach
 as the Trading Assistant project: a Node server on a LAN port, fronted by a
 Caddy reverse proxy that provides a publicly-trusted Let's Encrypt certificate.
 
-Culinary Quest is a **pure client-side app** — there is no backend or database,
-so this deploy is simpler than Trading Assistant. The "server" just serves the
-built `dist/` folder (`npm start` → `server.mjs` on port **5173**).
+Culinary Quest is a **pure client-side app** — there is no backend database, so
+this deploy is simpler than Trading Assistant. The "server" serves the built
+`dist/` folder (`npm start` → `server.mjs` on port **5173**) AND provides a tiny
+JSON API (`GET/PUT /api/favorites`) so your **Saved Recipes (Recipe Book)** are
+stored **on the server** (`data/favorites.json`) instead of only in each browser.
+Every save is auto-backed up to `backup/` (a timestamped copy) plus periodically.
+Both folders are gitignored — your data never gets committed. You can point them
+anywhere via `CQ_DATA_DIR` / `CQ_BACKUP_DIR` (e.g. a OneDrive-synced or
+drive-backed folder) in `.env`.
 
 > These steps are performed **on the server**. Code is developed/pushed from
 > your day-to-day PC (the git repo is the source of truth); the server only

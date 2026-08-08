@@ -9,6 +9,8 @@ lerna-debug.log*
 
 # ZCode internal state
 .zcode/
+# Accidental nested clone of this repo
+/culinary-quest/
 
 node_modules
 dist
@@ -17,6 +19,11 @@ dist-ssr
 .env
 .env.bak
 *.env.bak
+# Server data + backups (never commit live user data)
+data/*
+backup/*
+!data/.gitkeep
+!backup/.gitkeep
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

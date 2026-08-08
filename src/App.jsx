@@ -32,6 +32,7 @@ import {
   addFavorite,
   isFavorite,
   removeFavorite,
+  syncFromServer,
 } from "./favorites";
 
 export default function App() {
@@ -49,6 +50,9 @@ export default function App() {
 
   useEffect(() => {
     fetchRealCountries().then(setCountries);
+    // Load saved recipes from the server (if the deployed server is reachable);
+    // falls back to localStorage silently when offline.
+    syncFromServer().then((list) => { if (list) setSaved(list); });
   }, []);
 
   // Normalize a recipe to a common shape while keeping the FULL detail payload

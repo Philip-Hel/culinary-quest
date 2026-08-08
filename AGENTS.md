@@ -151,7 +151,9 @@ Rendering:
 
 - **`deepseek.js`** — optional AI dish suggestion (OpenAI-compatible `chat/completions`, paid). Reads `VITE_DEEPSEEK_API_KEY`; returns `null` when the key is missing. Asks the model for one region-appropriate dish as strict JSON and returns it tagged `source: "deepseek"`. AI instructions are unverified — the RecipeCard marks them "Suggested by AI" and the real verified sources stay the foundation.
 
-- **`favorites.js`** — the "Recipe Book": saved recipes persisted to `localStorage` (no backend). A saved recipe is the full recipe + `_country`/`_region`/`_cuisine` metadata so `FavoritesView.jsx` can search by country, cuisine, or dish name, and filter by cuisine.
+- **`favorites.js`** — the "Recipe Book": saved recipes persisted to `localStorage` (works offline/dev) **and** synced to the server when the deployed `server.mjs` is reachable. A saved recipe is the full recipe + `_country`/`_region`/`_cuisine` metadata so `FavoritesView.jsx` can search by country, cuisine, or dish name. The server copy (`data/favorites.json`) makes favs durable across devices and is auto-backed up to a configurable folder.
+
+- **`server.mjs`** — serves the built SPA `dist/` and a tiny JSON API (`GET/PUT /api/favorites`) so saved recipes can live on the server instead of only in the browser. Data + backup folders are configurable via `CQ_DATA_DIR` / `CQ_BACKUP_DIR` / `CQ_BACKUP_INTERVAL_MS` in `.env` (default `data/` and `backup/`). Both folders are gitignored (live user data is never committed); only `.gitkeep` is tracked.
 
 - **`normalizeCountryName.js`** — lowercases, strips every non-`[a-z\s]` character, and trims.
 

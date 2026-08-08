@@ -15,9 +15,9 @@ export const aiConfigured = Boolean(API_KEY);
 
 // Shared chat completion call with a fetch timeout so slow reasoning-model
 // replies can't hang the UI forever. Returns the raw assistant text, or "".
-// maxTokens is generous because DeepSeek's reasoning model spends output tokens
-// "thinking" before producing the final JSON (a full recipe can be ~700-800
-// tokens); too small a budget silently truncates the reply to unparseable JSON.
+// maxTokens is generous because recipes are long (~700-800 tokens of JSON).
+// Thinking mode is DISABLED below so the whole token budget goes to the recipe
+// and replies are fast/cheap; too small a budget would still truncate the JSON.
 async function chat(userPrompt, systemPrompt = "You are a food writer who knows world cuisines precisely.", maxTokens = 2000) {
   if (!API_KEY) return "";
 
@@ -35,6 +35,7 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
         ],
         temperature: 1.0,
         max_tokens: maxTokens,
+        thinking: { type: "disabled" },
       }),
       signal: controller.signal,
     });

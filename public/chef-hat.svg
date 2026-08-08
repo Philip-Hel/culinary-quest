@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+  <!-- Chef hat -->
+  <g>
+    <!-- Hat crown (poof) -->
+    <path fill="#f7f3ea" stroke="#e6dccb" stroke-width="1.5"
+      d="M20 38c-5.5 0-10-4.5-10-10 0-4.9 3.5-9 8.2-9.9A12 12 0 0 1 30 8c5.4 0 10 3.6 11.8 10.1C46.5 18.9 50 23 50 28c0 5.5-4.5 10-10 10z" />
+    <!-- Hat band -->
+    <path fill="#ffffff" stroke="#e6dccb" stroke-width="1.5"
+      d="M16 39h32a5 5 0 0 1 5 5c0 3-2.5 5-5 5H16c-2.5 0-5-2-5-5 0-3 2.5-5 5-5z" />
+    <!-- Band pleats -->
+    <path fill="none" stroke="#c44536" stroke-width="1.4"
+      d="M24 39v10 M32 39v10 M40 39v10" />
+  </g>
+</svg>

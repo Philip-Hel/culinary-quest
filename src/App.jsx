@@ -24,6 +24,13 @@ import { searchRecipesMulti, fetchSpoonacularRecipeDetails } from "./spoonacular
 import { searchEdamamRecipes } from "./edamam";
 import { getOfflineRecipes } from "./offline";
 import { suggestAIDish, aiConfigured } from "./deepseek";
+import FavoritesView from "./components/FavoritesView";
+import {
+  getFavorites,
+  addFavorite,
+  isFavorite,
+  removeFavorite,
+} from "./favorites";
 
 export default function App() {
   const [countries, setCountries] = useState([]);
@@ -32,6 +39,8 @@ export default function App() {
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [view, setView] = useState("explore"); // "explore" | "saved"
+  const [saved, setSaved] = useState(() => getFavorites());
 
   useEffect(() => {
     fetchRealCountries().then(setCountries);
@@ -47,6 +56,63 @@ export default function App() {
     source: recipe.source ?? "mealdb",
     ...recipe,
   });
+
+  // A recipe about to be shown gets the current country/region/cuisine attached
+  // so it can be saved and searched in the recipe book.
+  const shownRecipe = (r) => ({
+    _country: country?.name,
+    _region: country?.region,
+    _subregion: country?.subregion,
+    _cuisine: r.strCategory || r._cuisine,
+    ...r,
+  });
+
+  const refreshSaved = () => setSaved(getFavorites());
+
+  const saveCurrent = () => {
+    if (!recipe) return;
+    addFavorite(recipe, {
+      country: recipe._country,
+      region: recipe._region,
+      subregion: recipe._subregion,
+      cuisine: recipe._cuisine,
+    });
+    refreshSaved();
+  };
+
+  const unsaveCurrent = () => {
+    if (!recipe) return;
+    removeFavorite(recipe.idMeal);
+    refreshSaved();
+  };
+
+  const currentIsSaved = () => (recipe ? isFavorite(recipe.idMeal) : false);
+
+  // Open a saved recipe in the main card (without re-picking a country).
+  const openSaved = (f) => {
+    setCountry({ name: f._country, region: f._region, subregion: f._subregion });
+    setRecipe(shownRecipe(f));
+    setError(null);
+    setView("explore");
+  };
+
+  // Ask DeepSeek for a fresh AI idea for the current country (replaces any AI one).
+  const newAiIdea = async () => {
+    if (!aiConfigured || !country) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const aiDish = await suggestAIDish(country);
+      setRecipe(aiDish ? shownRecipe(aiDish) : recipe);
+      if (!aiDish)
+        setError("The AI couldn't draft a dish right now — check your DeepSeek key.");
+    } catch (err) {
+      console.error("AI idea failed:", err);
+      setError("Something went wrong getting an AI idea.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const pickRandomCountry = async () => {
     const random = countries[Math.floor(Math.random() * countries.length)];
@@ -150,7 +216,7 @@ export default function App() {
         details = await fetchRecipeDetails(random.idMeal);
       }
 
-      setRecipe(details ? toMeal(details) : null);
+      setRecipe(details ? shownRecipe(toMeal(details)) : null);
       if (!details) setError("Couldn't load that recipe — pick another!");
     } catch (err) {
       console.error("Failed to load recipe details:", err);
@@ -163,47 +229,105 @@ export default function App() {
   const showRecipeButton =
     country && recipes.length > 0 && !loading && !error;
 
+  const savedCount = saved.length;
+
   return (
     <PageLayout>
       <div className="flex flex-col items-center gap-6">
-        <CQButton onClick={pickRandomCountry} disabled={loading}>
-          {loading ? "Exploring…" : "Pick Random Country"}
-        </CQButton>
+        {/* View switcher */}
+        <nav className="mt-1 inline-flex rounded-full border border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/70 dark:bg-cq-darkSurface2/60 p-1 text-sm font-medium">
+          <button
+            type="button"
+            onClick={() => setView("explore")}
+            className={`rounded-full px-5 py-1.5 transition-colors ${
+              view === "explore"
+                ? "bg-cq-brand text-white shadow-cq-btn"
+                : "text-cq-muted dark:text-cq-darkMuted"
+            }`}
+          >
+            Explore
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("saved")}
+            className={`rounded-full px-5 py-1.5 transition-colors ${
+              view === "saved"
+                ? "bg-cq-brand text-white shadow-cq-btn"
+                : "text-cq-muted dark:text-cq-darkMuted"
+            }`}
+          >
+            My Recipes{savedCount ? ` (${savedCount})` : ""}
+          </button>
+        </nav>
 
-        <CountryCard country={country} />
+        {view === "saved" ? (
+          <FavoritesView
+            favorites={saved}
+            onOpen={openSaved}
+            onRemove={(f) => {
+              removeFavorite(f.idMeal);
+              refreshSaved();
+            }}
+          />
+        ) : (
+          <>
+            <CQButton onClick={pickRandomCountry} disabled={loading}>
+              {loading ? "Exploring…" : "Pick Random Country"}
+            </CQButton>
 
-        {loading && (
-          <CQCard className="w-full">
-            <div className="flex items-center justify-center gap-3 text-cq-muted dark:text-cq-darkMuted">
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-cq-accent/30 border-t-cq-accent" />
-              <p className="font-medium">Searching the world&apos;s kitchens…</p>
-            </div>
-          </CQCard>
+            <CountryCard country={country} />
+
+            {loading && (
+              <CQCard className="w-full">
+                <div className="flex items-center justify-center gap-3 text-cq-muted dark:text-cq-darkMuted">
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-cq-accent/30 border-t-cq-accent" />
+                  <p className="font-medium">Searching the world&apos;s kitchens…</p>
+                </div>
+              </CQCard>
+            )}
+
+            {error && (
+              <CQCard className="w-full">
+                <div className="flex items-center justify-center gap-3">
+                  <span className="grid h-8 w-8 place-items-center rounded-full bg-cq-primary/10 text-cq-primary">
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v6M12 16.5v.5" />
+                    </svg>
+                  </span>
+                  <p className="font-medium text-cq-primary dark:text-cq-ring">
+                    {error}
+                  </p>
+                </div>
+              </CQCard>
+            )}
+
+            {showRecipeButton && (
+              <CQButton onClick={pickRandomRecipe}>
+                Pick Random Recipe ({recipes.length})
+              </CQButton>
+            )}
+
+            <RecipeCard recipe={recipe} />
+
+            {/* Toolbar for the current recipe */}
+            {recipe && (
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <CQButton variant="secondary" onClick={saveCurrent}>
+                  {currentIsSaved() ? "♥ Saved" : "♥ Save this recipe"}
+                </CQButton>
+                <CQButton variant="secondary" onClick={unsaveCurrent}>
+                  Remove from saved
+                </CQButton>
+                {aiConfigured && (
+                  <CQButton variant="secondary" onClick={newAiIdea} disabled={loading}>
+                    {loading ? "Drafting…" : "New AI idea"}
+                  </CQButton>
+                )}
+              </div>
+            )}
+          </>
         )}
-
-        {error && (
-          <CQCard className="w-full">
-            <div className="flex items-center justify-center gap-3">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-cq-primary/10 text-cq-primary">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 7v6M12 16.5v.5" />
-                </svg>
-              </span>
-              <p className="font-medium text-cq-primary dark:text-cq-ring">
-                {error}
-              </p>
-            </div>
-          </CQCard>
-        )}
-
-        {showRecipeButton && (
-          <CQButton onClick={pickRandomRecipe}>
-            Pick Random Recipe ({recipes.length})
-          </CQButton>
-        )}
-
-        <RecipeCard recipe={recipe} />
       </div>
     </PageLayout>
   );

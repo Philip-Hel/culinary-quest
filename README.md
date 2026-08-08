@@ -17,8 +17,9 @@ Culinary Quest is a React + Vite application that transforms cooking into explor
 - Premium Tailwind UI — Custom palette, shadows, typography, animations
 - Dark Mode — Smooth, persistent theme toggle
 - Loading & Error States — Clear feedback while searching and when no recipes are found
+- Recipe Book (Favorites) — Save dishes you like and search them by country, cuisine, or name (persisted locally)
 - Modern Stack — React + Vite + Tailwind
-- Expandable Architecture — Quest Log, Map Selector, Favorites, and more
+- Expandable Architecture — Quest Log, Map Selector, and more
 
 🛠️ Tech Stack
 - React + Vite
@@ -57,6 +58,7 @@ src/
     RecipeCard.jsx
     PageLayout.jsx
     DarkModeToggle.jsx
+    FavoritesView.jsx  # searchable/filterable list of saved recipes
   api.js
   countries.json  # bundled static country list (name, ISO, region)
   cuisines.js       # resolves a country to a working recipe source
@@ -65,7 +67,7 @@ src/
   offline.js        # bundled offline recipe pool for cuisines live APIs don't cover
   recipes.json      # curated offline dishes (Pacific, African, Latin American, ...)
   deepseek.js       # optional AI recipe suggestions (VITE_DEEPSEEK_API_KEY)
-  normalizeCountryName.js
+  favorites.js      # local Recipe Book storage (localStorage)
   App.jsx
   main.jsx
   index.css

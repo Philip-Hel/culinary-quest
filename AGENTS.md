@@ -82,13 +82,14 @@ culinary-quest/
     ├── offline.js              # Bundled offline recipe source (no key, never breaks)
     ├── recipes.json            # ⚙️ Curated offline dishes for cuisines live APIs don't cover
     ├── deepseek.js             # Optional AI recipe suggestions (via VITE_DEEPSEEK_API_KEY)
-    ├── normalizeCountryName.js # Normalizes country names for cuisine lookup
+    ├── favorites.js            # ⚙️ Local Recipe Book persistence (localStorage store)
     └── components/
         ├── PageLayout.jsx      # ⚙️ Page shell: header, theme-aware background, mounts DarkModeToggle
         ├── CQButton.jsx        # Themed button (brand colors + hover/active/disabled states)
         ├── CQCard.jsx          # Themed card wrapper (surface, border, fadeIn)
         ├── CountryCard.jsx     # Shows flag + name + region of the chosen country
         ├── RecipeCard.jsx      # Shows thumbnail + name + instructions of the meal
+        ├── FavoritesView.jsx   # ⚙️ Searchable/filterable list of saved recipes
         └── DarkModeToggle.jsx  # Persisted dark/light toggle (flips `dark` on <html>)
 ```
 
@@ -150,6 +151,8 @@ Rendering:
 
 - **`deepseek.js`** — optional AI dish suggestion (OpenAI-compatible `chat/completions`, paid). Reads `VITE_DEEPSEEK_API_KEY`; returns `null` when the key is missing. Asks the model for one region-appropriate dish as strict JSON and returns it tagged `source: "deepseek"`. AI instructions are unverified — the RecipeCard marks them "Suggested by AI" and the real verified sources stay the foundation.
 
+- **`favorites.js`** — the "Recipe Book": saved recipes persisted to `localStorage` (no backend). A saved recipe is the full recipe + `_country`/`_region`/`_cuisine` metadata so `FavoritesView.jsx` can search by country, cuisine, or dish name, and filter by cuisine.
+
 - **`normalizeCountryName.js`** — lowercases, strips every non-`[a-z\s]` character, and trims.
 
 - **Recipe source fallback chain:** valid TheMealDB area → category fallback pool → (optional) Spoonacular cuisine → (optional) Edamam keyword → bundled offline pool → (optional) DeepSeek AI draft → friendly error if absolutely nothing matches.
@@ -192,8 +195,7 @@ Rendering:
 
 The README names these as intended next steps. In each case, the natural starting point is `App.jsx` (state + wiring) and new components under `src/components/`:
 
-- **Quest Log** — record visited countries/dishes. Would add state for history + a list component.
-- **Favorites** — persist favorite meals. Would need `localStorage` or similar (no backend exists).
+- **Quest Log** — record visited countries/dishes. Would add state for history + a list component. (Favorites/Recipe Book is already done.)
 - **Map Selector** — geographically pick a country instead of random. Would consume the existing `countries[]` (which already includes `region`/`subregion`).
 - **Pagination / "load more"** — Spoonacular already returns `totalResults`; exposing `offset` pagination would let the UI grow the recipe list on demand.
 

@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Edamam integration** (optional third source, best regional coverage, but **paid only** — no free tier) via `src/edamam.js`; enabled with `VITE_EDAMAM_APP_ID` + `VITE_EDAMAM_APP_KEY`. Returns complete recipe objects in search results (no separate detail call).
 - **Bundled offline recipe pool** (`src/offline.js` + `src/recipes.json`) for cuisines live APIs don't cover (Pacific islands, regional African, Latin American, Middle Eastern). Keyless, offline, never breaks; live sources stay primary.
 - **DeepSeek AI suggestions** (`src/deepseek.js`, paid/optional) — with `VITE_DEEPSEEK_API_KEY` set, the app asks the model for a random region-appropriate dish and adds it to the pool, marked "Suggested by AI" (AI text is unverified; real recipes remain primary).
+- **Recipe Book (Favorites)** (`src/favorites.js` + `FavoritesView.jsx`) — save dishes you like and search them by country, cuisine, or name; filter by cuisine. Persisted in `localStorage`.
 - **`src/cuisines.js`** — resolves any country to a working recipe source (valid TheMealDB area → category fallback → Spoonacular → Edamam).
 - **Dark Mode toggle** (`DarkModeToggle.jsx`) — persistent via `localStorage`, defaults to system preference.
 - **Loading & error states** while fetching recipes, with friendly inline messages.
@@ -31,7 +32,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Planned (from the project README)
 - Quest Log — record visited countries / dishes
-- Favorites — persist favorite meals
 - Map Selector — pick a country geographically
 
 ### Known limitations

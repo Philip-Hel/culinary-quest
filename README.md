@@ -27,6 +27,7 @@ Culinary Quest is a React + Vite application that transforms cooking into explor
 - TheMealDB (recipes, default)
 - Spoonacular (recipes, optional — see Getting Started)
 - Edamam (recipes, optional, paid — see Getting Started)
+- DeepSeek (optional AI recipe suggestions — see Getting Started)
 - Bundled offline recipe pool (curated dishes for cuisines live APIs don't cover: Pacific islands, regional African, Latin American, etc.)
 - Node.js
 
@@ -37,10 +38,12 @@ npm run dev
 Optional: enable the larger recipe sources
 - Lowest effort: create the free Spoonacular key at https://spoonacular.com (50 free points/day, no credit card via Spoonacular directly). It's the largest genuinely-free source. The app queries the country's cuisine plus a rotating signature-ingredient keyword, and stops early when a cuisine is already well-covered — so a typical visit costs ~1–3 points (roughly 15–45 country picks/day on the free tier).
 - Edamam is **not free** (paid only, plans start ~$9/mo) — skip it unless you want to pay. The code supports it if you add credentials later.
+- DeepSeek (optional): add a key from https://platform.deepseek.com/api_keys to have the app suggest a fresh, region-appropriate dish via AI alongside the real ones. Paid (cheap), no free tier; instructions are AI-written and marked as unverified.
 - Copy `.env.example` to `.env` and set whatever keys you have:
    VITE_SPOONACULAR_API_KEY=your-spoonacular-key
    VITE_EDAMAM_APP_ID=your-edamam-app-id
    VITE_EDAMAM_APP_KEY=your-edamam-app-key
+   VITE_DEEPSEEK_API_KEY=your-deepseek-key
   The app works without any of these — it just uses TheMealDB plus a category fallback. Each enabled source adds more recipes per country.
 
 
@@ -61,6 +64,7 @@ src/
   edamam.js         # optional third recipe API (best regional coverage)
   offline.js        # bundled offline recipe pool for cuisines live APIs don't cover
   recipes.json      # curated offline dishes (Pacific, African, Latin American, ...)
+  deepseek.js       # optional AI recipe suggestions (VITE_DEEPSEEK_API_KEY)
   normalizeCountryName.js
   App.jsx
   main.jsx

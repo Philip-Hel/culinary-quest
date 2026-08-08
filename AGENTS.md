@@ -38,6 +38,7 @@ This file helps AI agents (and their human partners) work on **Culinary Quest** 
 - [TheMealDB](https://www.themealdb.com) — `api/json/v1/1` (filter by area/category, lookup by id) — no key
 - [Spoonacular](https://spoonacular.com) — `recipes/complexSearch` + `recipes/{id}/information` — **optional**, requires `VITE_SPOONACULAR_API_KEY` in `.env` (see `.env.example`). Without a key the app gracefully falls back to TheMealDB + a category fallback.
 - [Edamam](https://developer.edamam.com) — `api/recipes/v2` (search) — **optional, PAID only (no free tier, plans start ~$9/mo.)**. Required `VITE_EDAMAM_APP_ID` + `VITE_EDAMAM_APP_KEY`. Returns full recipe objects in search results (no separate detail call). Degrades gracefully without keys. Keep it off unless the user has paid for an account.
+- [DeepSeek](https://platform.deepseek.com/api_keys) — `chat/completions` (OpenAI-compatible, **PAID**, no free tier). `VITE_DEEPSEEK_API_KEY` → the app asks the model for a random region-appropriate dish and adds it to the pool, clearly marked "suggested by AI". AI text is unverified; real recipe sources stay primary.
 
 ---
 
@@ -80,6 +81,7 @@ culinary-quest/
     ├── edamam.js               # Optional 3rd recipe source, best regional coverage (via VITE_EDAMAM_APP_ID/KEY)
     ├── offline.js              # Bundled offline recipe source (no key, never breaks)
     ├── recipes.json            # ⚙️ Curated offline dishes for cuisines live APIs don't cover
+    ├── deepseek.js             # Optional AI recipe suggestions (via VITE_DEEPSEEK_API_KEY)
     ├── normalizeCountryName.js # Normalizes country names for cuisine lookup
     └── components/
         ├── PageLayout.jsx      # ⚙️ Page shell: header, theme-aware background, mounts DarkModeToggle
@@ -146,9 +148,11 @@ Rendering:
 
 - **`offline.js`** — bundled, keyless recipe source powered by `recipes.json`. Matches a country to region tags via `resolveOfflineRegions` (cuisines.js) and returns curated dishes for cuisines live APIs barely cover (Pacific islands, regional African, Latin American, Middle Eastern). No network, never breaks; the trade-off is it only updates when `recipes.json` is regenerated and committed. Live sources are primary — offline enriches the pool.
 
+- **`deepseek.js`** — optional AI dish suggestion (OpenAI-compatible `chat/completions`, paid). Reads `VITE_DEEPSEEK_API_KEY`; returns `null` when the key is missing. Asks the model for one region-appropriate dish as strict JSON and returns it tagged `source: "deepseek"`. AI instructions are unverified — the RecipeCard marks them "Suggested by AI" and the real verified sources stay the foundation.
+
 - **`normalizeCountryName.js`** — lowercases, strips every non-`[a-z\s]` character, and trims.
 
-- **Recipe source fallback chain:** valid TheMealDB area → category fallback pool → (optional) Spoonacular cuisine → (optional) Edamam keyword → bundled offline pool → friendly error if absolutely nothing matches.
+- **Recipe source fallback chain:** valid TheMealDB area → category fallback pool → (optional) Spoonacular cuisine → (optional) Edamam keyword → bundled offline pool → (optional) DeepSeek AI draft → friendly error if absolutely nothing matches.
 
 ---
 

@@ -34,6 +34,7 @@ const StarRow = () => (
 export default function RecipeCard({ recipe }) {
   if (!recipe) return null;
 
+  const isAI = recipe.source === "deepseek";
   const ingredients = collectIngredients(recipe);
   const steps = collectSteps(recipe);
   const area = recipe.strArea || recipe.strCategory;
@@ -43,13 +44,19 @@ export default function RecipeCard({ recipe }) {
     <CQCard className="w-full overflow-hidden p-0">
       {/* Bleeding photo hero with caption strip */}
       <figure className="relative">
-        <img
-          src={recipe.strMealThumb}
-          alt={recipe.strMeal}
-          className="aspect-banner w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
-        />
+        {recipe.strMealThumb ? (
+          <img
+            src={recipe.strMealThumb}
+            alt={recipe.strMeal}
+            className="aspect-banner w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
+          />
+        ) : (
+          <div className="aspect-banner w-full bg-gradient-to-br from-cq-accentSoft/40 via-cq-surface to-cq-primary/20 grid place-items-center">
+            <span className="font-serif text-6xl text-cq-primary/30">🍽</span>
+          </div>
+        )}
         <figcaption className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-cq-surface/85 dark:bg-cq-surface/80 px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted backdrop-blur">
-          <span>Photographed on location</span>
+          <span>{isAI ? "Suggested by AI · unverified" : "Photographed on location"}</span>
           <span className="font-serif normal-case italic tracking-normal">
             {area ? `A ${area} speciality` : "From the global kitchen"}
           </span>
@@ -60,7 +67,7 @@ export default function RecipeCard({ recipe }) {
         {/* Headline block */}
         <div className="pt-6">
           <p className="flex items-center justify-between text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-cq-accent dark:text-cq-ring">
-            <span>✦ Signature Dish ✦</span>
+            <span>{isAI ? "✦ Suggested by AI ✦" : "✦ Signature Dish ✦"}</span>
             <StarRow />
           </p>
           <h3 className="mt-3 font-serif text-4xl font-black leading-tight tracking-tight text-cq-text dark:text-cq-darkText sm:text-5xl">

@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Spoonacular adaptive broadening** — when a country's cuisine is thin, also query a rotating signature-ingredient keyword and merge/dedupe; stops early when a cuisine is well-covered, staying frugal within the 50-point/day free tier.
 - **Edamam integration** (optional third source, best regional coverage, but **paid only** — no free tier) via `src/edamam.js`; enabled with `VITE_EDAMAM_APP_ID` + `VITE_EDAMAM_APP_KEY`. Returns complete recipe objects in search results (no separate detail call).
 - **Bundled offline recipe pool** (`src/offline.js` + `src/recipes.json`) for cuisines live APIs don't cover (Pacific islands, regional African, Latin American, Middle Eastern). Keyless, offline, never breaks; live sources stay primary.
+- **DeepSeek AI suggestions** (`src/deepseek.js`, paid/optional) — with `VITE_DEEPSEEK_API_KEY` set, the app asks the model for a random region-appropriate dish and adds it to the pool, marked "Suggested by AI" (AI text is unverified; real recipes remain primary).
 - **`src/cuisines.js`** — resolves any country to a working recipe source (valid TheMealDB area → category fallback → Spoonacular → Edamam).
 - **Dark Mode toggle** (`DarkModeToggle.jsx`) — persistent via `localStorage`, defaults to system preference.
 - **Loading & error states** while fetching recipes, with friendly inline messages.
@@ -35,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Known limitations
 - No automated test suite
-- Spoonacular is free (50 pts/day); Edamam is **paid**. Without Spoonacular the app relies on TheMealDB + category fallback (smaller pool)
+- Spoonacular is free (50 pts/day); Edamam is **paid** and DeepSeek is **paid**. Without Spoonacular the app relies on TheMealDB + category fallback (smaller pool)
 
 ---
 

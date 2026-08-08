@@ -23,6 +23,7 @@ import {
 import { searchRecipesMulti, fetchSpoonacularRecipeDetails } from "./spoonacular";
 import { searchEdamamRecipes } from "./edamam";
 import { getOfflineRecipes } from "./offline";
+import { suggestAIDish, aiConfigured } from "./deepseek";
 
 export default function App() {
   const [countries, setCountries] = useState([]);
@@ -110,6 +111,14 @@ export default function App() {
         }
       }
 
+      // 6) Optional AI (DeepSeek): when a key is configured, ask the model for a
+      //    fresh, region-appropriate dish to add to the pool. It only ever adds —
+      //    the real, verified recipes above stay the foundation.
+      if (aiConfigured) {
+        const aiDish = await suggestAIDish(random);
+        if (aiDish) collected.push(aiDish);
+      }
+
       if (collected.length === 0) {
         setError("No recipes found for this country right now — try again!");
       } else {
@@ -134,8 +143,8 @@ export default function App() {
       let details;
       if (random.source === "spoonacular") {
         details = await fetchSpoonacularRecipeDetails(random.idMeal);
-      } else if (random.source === "edamam" || random.source === "offline") {
-        // Edamam/offline search results already include the full recipe.
+      } else if (random.source === "edamam" || random.source === "offline" || random.source === "deepseek") {
+        // Edamam/offline/AI results already include the full recipe.
         details = random;
       } else {
         details = await fetchRecipeDetails(random.idMeal);

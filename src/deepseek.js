@@ -53,14 +53,14 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
   }
 }
 
-// Resolve a verified food photo for an AI dish from TheMealDB (keyless, already
-// used by api.js). TheMealDB serves real dish thumbnails, so we never get an
-// unrelated/random image the way a generic "random photo" service would.
+// Resolve a food photo for an AI dish from Openverse — a keyless API that
+// aggregates millions of open-licensed images (Flickr, Wikimedia, etc.), far
+// larger than any single food site. Searching by the dish name returns relevant
+// results with a thumbnail URL we can drop straight into an <img>.
 //
-// Strategy: search by the dish name; if that returns nothing, re-search using
-// just the first word (e.g. "spicy tuna guacamole" → "spicy"). Returns a
-// real thumbnail URL, or "" when nothing useful matches — the caller then
-// leaves strMealThumb empty so RecipeCard shows its themed placeholder instead.
+// Returns a thumbnail URL, or "" when the request fails so RecipeCard falls
+// back to its themed placeholder. We take the best-ranked relevant result, and
+// prefer one whose title echoes the dish so the photo generally matches.
 async function fetchFoodImage(name) {
   const slug = String(name || "")
     .toLowerCase()
@@ -70,26 +70,33 @@ async function fetchFoodImage(name) {
     .trim();
   if (!slug) return "";
 
-  // Try the full dish name first, then its first word.
-  const keywords = [slug, slug.split(" ")[0]];
-  for (const kw of keywords) {
-    try {
-      const res = await fetch(
-        `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(kw)}`
-      );
-      if (!res.ok) {
-        console.error("TheMealDB image search error:", res.status, res.statusText);
-        return "";
-      }
-      const data = await res.json();
-      const meal = data && data.meals && data.meals[0];
-      if (meal && meal.strMealThumb) return meal.strMealThumb;
-    } catch (err) {
-      console.error("TheMealDB image search failed:", err);
+  // The significant words to gauge title relevance (drop tiny filler words).
+  const filler = new Set(["the", "a", "an", "of", "with", "and", "on", "in", "for"]);
+  const dishWords = [...new Set(slug.split(" "))].filter((w) => w.length > 2 && !filler.has(w));
+  const prefers = (title) =>
+    dishWords.length > 0 &&
+    dishWords.some((w) => String(title || "").toLowerCase().includes(w));
+
+  try {
+    const res = await fetch(
+      `https://api.openverse.org/v1/images/?q=${encodeURIComponent(slug)}&page_size=6&filter_dead=true`
+    );
+    if (!res.ok) {
+      console.error("Openverse image search error:", res.status, res.statusText);
       return "";
     }
+    const data = await res.json();
+    const results = (data && data.results) || [];
+    if (!results.length) return "";
+
+    // Prefer a result whose title actually mentions the dish; otherwise take
+    // Openverse's top-ranked result (still relevant in the big pool).
+    const pick = results.find((r) => prefers(r.title)) || results[0];
+    return pick.thumbnail || pick.url || "";
+  } catch (err) {
+    console.error("Openverse image search failed:", err);
+    return "";
   }
-  return ""; // no match — let RecipeCard fall back to its themed placeholder
 }
 
 // Ask DeepSeek for a dish for a country. `exclude` lists dish names the user

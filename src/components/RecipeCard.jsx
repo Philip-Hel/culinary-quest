@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CQCard from "./CQCard";
 
 // TheMealDB packs ingredients into strIngredient1..20 + strMeasure1..20.
@@ -33,12 +33,34 @@ const StarRow = () => (
 );
 
 export default function RecipeCard({ recipe }) {
-  // Hooks must run before the early return. `imgFailed` resets when the card is
-  // remounted via its `key` in App.jsx (per-recipe), so a new dish re-tries its photo.
-  const [imgFailed, setImgFailed] = useState(false);
+  // Hooks must ALL run before any early return, so compute a null-safe photo
+  // count here and keep the auto-advance effect before `if (!recipe)`.
+  const [current, setCurrent] = useState(0);
+  const [failed, setFailed] = useState(() => ({})); // { [url]: true }
+  const timer = useRef(null);
+  const photoCount = (Array.isArray(recipe?.images) ? recipe.images : []).filter(
+    (u) => u && !failed[u]
+  ).length;
+
+  // Auto-advance the photo carousel every 4s while more than one photo remains.
+  useEffect(() => {
+    if (photoCount <= 1) return undefined;
+    timer.current = setInterval(() => {
+      setCurrent((i) => (i + 1) % photoCount);
+    }, 4000);
+    return () => {
+      clearInterval(timer.current);
+    };
+  }, [photoCount]);
 
   if (!recipe) return null;
 
+  // Image set for the carousel. DeepSeek dishes carry `recipe.images`; others
+  // fall back to their single thumbnail. If none remain, show the placeholder.
+  const images = (Array.isArray(recipe.images) ? recipe.images : [])
+    .filter((u) => u && !failed[u]);
+  const hasPhotos = images.length > 0;
+  const shown = hasPhotos ? (images[current] ?? images[0]) : "";
   const isAI = recipe.source === "deepseek";
   const isTweaked = /ai-tweaked/i.test(recipe.strTags || "");
   const ingredients = collectIngredients(recipe);
@@ -48,20 +70,41 @@ export default function RecipeCard({ recipe }) {
 
   return (
     <CQCard className="w-full overflow-hidden p-0">
-      {/* Bleeding photo hero with caption strip */}
+      {/* Bleeding photo hero with caption strip + carousel dots */}
       <figure className="relative">
-        {recipe.strMealThumb && !imgFailed ? (
+        {hasPhotos ? (
           <img
-            src={recipe.strMealThumb}
+            key={shown}
+            src={shown}
             alt={recipe.strMeal}
-            onError={() => setImgFailed(true)}
-            className="aspect-banner w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
+            onError={() => setFailed((f) => ({ ...f, [shown]: true }))}
+            className="aspect-banner w-full object-cover transition-transform duration-700 hover:scale-[1.02] animate-fadeIn"
           />
         ) : (
           <div className="aspect-banner w-full bg-gradient-to-br from-cq-accentSoft/40 via-cq-surface to-cq-primary/20 grid place-items-center">
             <span className="font-serif text-6xl text-cq-primary/30">🍽</span>
           </div>
         )}
+
+        {/* Photo index dots — shown when a dish has more than one photo */}
+        {photoCount > 1 && (
+          <div className="absolute right-4 top-3 z-10 flex gap-1.5">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Photo ${i + 1} of ${photoCount}`}
+                onClick={() => setCurrent(i)}
+                className={`h-2 w-2 rounded-full transition-all ${
+                  i === (current % photoCount)
+                    ? "w-4 bg-cq-primary ring-2 ring-white/80 dark:ring-white/40"
+                    : "bg-white/70 hover:bg-white"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         <figcaption className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-cq-surface/85 dark:bg-cq-surface/80 px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-wideish text-cq-muted dark:text-cq-darkMuted backdrop-blur">
           <span>{isAI ? (isTweaked ? "AI-tweaked · unverified" : "Suggested by AI · unverified") : "Photographed on location"}</span>
           <span className="font-serif normal-case italic tracking-normal">

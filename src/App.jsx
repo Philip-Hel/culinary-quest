@@ -60,13 +60,23 @@ export default function App() {
   // Normalize a recipe to a common shape while keeping the FULL detail payload
   // (instructions, category, ingredients, measures) so the RecipeCard can
   // render an editorial spread. `source` tells us which detail-fetcher to use.
-  const toMeal = (recipe) => ({
-    idMeal: String(recipe.idMeal ?? recipe.id),
-    strMeal: recipe.strMeal ?? recipe.title,
-    strMealThumb: recipe.strMealThumb ?? recipe.image,
-    source: recipe.source ?? "mealdb",
-    ...recipe,
-  });
+  const toMeal = (recipe) => {
+    const thumb = recipe.strMealThumb ?? recipe.image;
+    // Ensure every recipe carries an `images` array (DeepSeek dishes already
+    // have many; others fall back to their single thumbnail) so the RecipeCard
+    // can show a dot-scrolling carousel when more than one photo exists.
+    const images = Array.isArray(recipe.images) && recipe.images.length
+      ? recipe.images
+      : thumb ? [thumb] : recipe.images || [];
+    return {
+      ...recipe,
+      idMeal: String(recipe.idMeal ?? recipe.id),
+      strMeal: recipe.strMeal ?? recipe.title,
+      strMealThumb: thumb,
+      source: recipe.source ?? "mealdb",
+      images, // our normalized array wins over any on the original recipe
+    };
+  };
 
   // A recipe about to be shown gets the current country/region/cuisine attached
   // so it can be saved and searched in the recipe book.

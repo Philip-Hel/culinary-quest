@@ -10,7 +10,7 @@
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY || "";
 const BASE = "https://api.deepseek.com";
 const MODEL = import.meta.env.VITE_DEEPSEEK_MODEL || "deepseek-v4-flash";
-import { searchWikimediaFoodImage } from "./wikimediaImages";
+import { searchWikimediaFoodImages } from "./wikimediaImages";
 
 export const aiConfigured = Boolean(API_KEY);
 
@@ -54,61 +54,49 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
   }
 }
 
-// Resolve a food photo for an AI dish from Openverse — a keyless API that
-// aggregates millions of open-licensed images (Flickr, Wikimedia, etc.), far
-// larger than any single food site. Searching by the dish name returns relevant
-// results with a thumbnail URL we can drop straight into an <img>.
-//
-// To keep the photos food-only we (a) append a literal "food" tag to the query
-// so the whole result set is food-weighted, and (b) prefer a result whose title
-// carries a food signal (a dish word, or a common food term). If none look
-// foody we still take the top-ranked result (already food-biased) rather than
-// giving up, so a photo shows up from the big pool.
-//
-// Returns a thumbnail URL, or "" only when the request fails or returns nothing
-// (RecipeCard then shows its themed placeholder).
-async function fetchFoodImage(name) {
+// Resolve food photos for an AI dish. Returns an ARRAY of up to 4 image URLs
+// (best matches first) so the RecipeCard can show a dot-scrolling carousel when
+// more than one exists. Sources, in order of preference:
+//   1. Wikimedia Commons (free, keyless, most relevant food matches) — up to 4.
+//   2. Openverse (keyless, millions of images) — as a fallback.
+// To keep photos food-only, queries append a literal "food" tag and we prefer
+// titles that mention the dish or a common food term. Returns [] only when
+// nothing is found (RecipeCard then shows its themed placeholder).
+async function fetchFoodImages(name) {
   const slug = String(name || "")
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[^a-z\s]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  if (!slug) return "";
+  if (!slug) return [];
 
-  // Try Wikimedia Commons first — free, keyless, and its food results are the
-  // most relevant of the sources tried. Fall through to Openverse on a miss so
-  // a photo still appears when possible.
+  // 1) Wikimedia Commons — up to 4 relevant food photos.
   {
-    const wikiUrl = await searchWikimediaFoodImage(slug);
-    if (wikiUrl) return wikiUrl;
+    const wiki = await searchWikimediaFoodImages(slug, 4);
+    if (wiki.length) return wiki;
   }
 
-  // Significant words from the dish, plus a broad set of food terms used to
-  // recognise a food-looking title.
+  // 2) Openverse fallback.
   const filler = new Set(["the", "a", "an", "of", "with", "and", "on", "in", "for"]);
   const dishWords = [...new Set(slug.split(" "))].filter((w) => w.length > 2 && !filler.has(w));
   const foodTerms = new Set([
     "food", "dish", "meal", "recipe", "cook", "cooking", "kitchen", "dinner", "lunch", "breakfast",
-    "soup", "stew", "curry", "salad", "stir", "fry", "fried", "grill", "grilled", "bake", "baked",
-    "roast", "roasted", "steak", "pork", "beef", "chicken", "beef", "fish", "shrimp", "prawn", "crab",
-    "rice", "noodle", "noodles", "ramen", "pasta", "pizza", "bread", "cake", "cookie", "pie", "taco",
-    "burrito", "sauce", "soup", "cheese", "sausage", "tofu", "veggie", "vegetable", "tomato", "potato",
-    "egg", "eggs", "fruit", "ice", "chocolate", "spice", "spicy", "cream", "butter", "olive", "garlic",
+    "soup", "stew", "curry", "salad", "fry", "fried", "grill", "grilled", "bake", "baked",
+    "roast", "roasted", "steak", "pork", "beef", "chicken", "fish", "shrimp", "prawn", "crab",
+    "rice", "noodle", "ramen", "pasta", "pizza", "bread", "cake", "cookie", "pie", "taco",
+    "sauce", "cheese", "sausage", "tofu", "vegetable", "tomato", "potato", "egg", "fruit",
+    "chocolate", "spicy", "cream", "butter", "olive", "garlic",
   ]);
   const isFood = (title) => {
     const t = String(title || "").toLowerCase();
-    // A title mentioning the dish (or a dish word) is a strong signal.
     if (dishWords.some((w) => t.includes(w))) return true;
-    // Otherwise check every word of the title against known food terms, e.g.
-    // "Pad Thai. #food #foodporn #thaifood" → matches "food".
-    const words = t.split(/[^a-z]+/).filter(Boolean);
-    return words.some((w) => foodTerms.has(w));
+    return t.split(/[^a-z]+/).filter(Boolean).some((w) => foodTerms.has(w));
   };
 
   // Build candidate queries, most specific first. A fully specialised dish name
   // like "Taro with Coconut Milk (Ongngem)" can return nothing, so we retry with
-  // fewer significant words (e.g. "taro coconut milk") until a food photo shows.
+  // fewer significant words (e.g. "taro coconut milk") until a photo shows.
   const candidates = [dishWords.join(" ")];
   if (dishWords.length > 2) candidates.push(dishWords.slice(0, Math.ceil(dishWords.length / 2)).join(" "));
   if (dishWords.length > 1) candidates.push(dishWords[0]);
@@ -116,26 +104,32 @@ async function fetchFoodImage(name) {
   for (const query of candidates) {
     try {
       const res = await fetch(
-        `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query + " food")}&page_size=8&filter_dead=true`
+        `https://api.openverse.org/v1/images/?q=${encodeURIComponent(query + " food")}&page_size=6&filter_dead=true`
       );
       if (!res.ok) {
         console.error("Openverse image search error:", res.status, res.statusText);
-        return "";
+        continue;
       }
       const data = await res.json();
       const results = (data && data.results) || [];
       if (!results.length) continue;
 
-      // Prefer a title that mentions the dish or reads as food; fall back to the
-      // top-ranked (already food-weighted) result so we rarely show a placeholder.
-      const pick = results.find((r) => isFood(r.title)) || results[0];
-      return pick.thumbnail || pick.url || "";
+      // Prefer titles that mention the dish or read as food; otherwise take the
+      // top-ranked ones. Collect up to 4 distinct image URLs.
+      const ranked = results
+        .map((r) => r.thumbnail || r.url)
+        .filter(Boolean);
+      const foodFirst = [
+        ...results.filter((r) => isFood(r.title)).map((r) => r.thumbnail || r.url),
+        ...ranked,
+      ].filter((u, i, arr) => u && arr.indexOf(u) === i);
+      return foodFirst.slice(0, 4);
     } catch (err) {
       console.error("Openverse image search failed:", err);
-      return "";
+      continue;
     }
   }
-  return "";
+  return [];
 }
 
 // Ask DeepSeek for a dish for a country. `exclude` lists dish names the user
@@ -168,10 +162,12 @@ export async function suggestAIDish({ name, region, subregion, exclude = [], str
   const json = extractJson(text);
   if (!json) return null;
   const dishName = String(json.name || "").trim();
+  const images = await fetchFoodImages(dishName);
   return {
     idMeal: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     strMeal: dishName,
-    strMealThumb: await fetchFoodImage(dishName), // "" → themed placeholder
+    strMealThumb: images[0] || "", // first photo; "" → themed placeholder
+    images,
     strInstructions: String(json.instructions || "").trim(),
     strIngredients: Array.isArray(json.ingredients) ? json.ingredients : [],
     strCategory: region || "AI-suggested",
@@ -207,11 +203,16 @@ export async function tweakRecipeWithAI(recipe, instruction) {
   if (!json) return null;
 
   const tweakedName = String(json.name || recipe.strMeal).trim();
+  const images =
+    (Array.isArray(recipe.images) && recipe.images.length ? recipe.images : null) ||
+    (recipe.strMealThumb ? [recipe.strMealThumb] : null) ||
+    (await fetchFoodImages(tweakedName));
   return {
     ...recipe,
     idMeal: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     strMeal: tweakedName,
-    strMealThumb: recipe.strMealThumb || (await fetchFoodImage(tweakedName)),
+    strMealThumb: images[0] || recipe.strMealThumb || "",
+    images,
     strIngredients: Array.isArray(json.ingredients) ? json.ingredients : (recipe.strIngredients || []),
     strInstructions: String(json.instructions || recipe.strInstructions).trim(),
     strCategory: recipe.strCategory || "AI-suggested",

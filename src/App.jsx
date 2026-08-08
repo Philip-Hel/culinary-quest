@@ -45,6 +45,7 @@ export default function App() {
   const [saved, setSaved] = useState(() => getFavorites());
   const [tweakOpen, setTweakOpen] = useState(false);
   const [note, setNote] = useState(null); // contextual hint (no key / no country)
+  const [aiHistory, setAiHistory] = useState([]); // dish names shown for current country
 
   useEffect(() => {
     fetchRealCountries().then(setCountries);
@@ -94,6 +95,7 @@ export default function App() {
   // Open a saved recipe in the main card (without re-picking a country).
   const openSaved = (f) => {
     setCountry({ name: f._country, region: f._region, subregion: f._subregion });
+    setAiHistory([]);
     setRecipe(shownRecipe(f));
     setError(null);
     setNote(null);
@@ -113,17 +115,30 @@ export default function App() {
     return true;
   };
 
-  // Ask DeepSeek for a fresh AI idea for the current country. Shows a visible
-  // "AI is drafting…" state, then displays the dish; failures are never silent.
+  // Ask DeepSeek for a fresh AI idea for the current country. Tracks which dishes
+  // have already been suggested (for this country) and asks for something
+  // different, retrying once if the model still repeats one.
   const newAiIdea = async () => {
     if (!aiAllowed() || !country) return;
     setTweakOpen(false);
     setNote(null);
     setLoading(true);
     try {
-      const aiDish = await suggestAIDish(country);
+      // Ask for a dish excluding anything already shown, retrying (with an
+      // escalating "pick something different" nudge) if the model repeats one.
+      let aiDish = null;
+      let strong = false;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const candidate = await suggestAIDish({ ...country, exclude: aiHistory, stronglyDifferent: strong || attempt > 1 });
+        if (!candidate) break;
+        const dup = aiHistory.some((n) => String(n).toLowerCase() === candidate.strMeal.toLowerCase());
+        if (!dup) { aiDish = candidate; break; }
+        strong = true; // model repeated a seen dish -> escalate the "different" nudge
+        aiDish = candidate; // keep it as a fallback so we don't blank the screen
+      }
       if (aiDish) {
         setRecipe(shownRecipe(aiDish));
+        setAiHistory((h) => [...h.filter((n) => n !== aiDish.strMeal).slice(-20), aiDish.strMeal]);
         setError(null);
       } else {
         setError("The AI couldn't draft a dish right now — please try again.");
@@ -171,6 +186,7 @@ export default function App() {
     if (!random) return;
 
     setCountry(random);
+    setAiHistory([]); // new country -> fresh set of AI dishes to avoid repeats
     setRecipes([]);
     setRecipe(null);
     setLoading(true);

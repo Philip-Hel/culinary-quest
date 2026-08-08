@@ -18,7 +18,7 @@ export const aiConfigured = Boolean(API_KEY);
 // maxTokens is generous because recipes are long (~700-800 tokens of JSON).
 // Thinking mode is DISABLED below so the whole token budget goes to the recipe
 // and replies are fast/cheap; too small a budget would still truncate the JSON.
-async function chat(userPrompt, systemPrompt = "You are a food writer who knows world cuisines precisely.", maxTokens = 2000) {
+async function chat(userPrompt, systemPrompt = "You are a food writer who knows world cuisines precisely.", maxTokens = 2000, temperature = 1.0) {
   if (!API_KEY) return "";
 
   const controller = new AbortController();
@@ -33,7 +33,7 @@ async function chat(userPrompt, systemPrompt = "You are a food writer who knows 
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
         ],
-        temperature: 1.0,
+        temperature,
         max_tokens: maxTokens,
         thinking: { type: "disabled" },
       }),
@@ -68,19 +68,33 @@ function imageForDish(name) {
   return url; // RecipeCard falls back to the placeholder if it fails to load.
 }
 
-// as strict JSON. Returns the recipe in the app's shape with source "deepseek",
-// or null on any failure / missing key / unparseable reply.
-export async function suggestAIDish({ name, region, subregion }) {
+// Ask DeepSeek for a dish for a country. `exclude` lists dish names the user
+// has already seen for this country; a higher temperature + the exclusion list
+// push the model toward something genuinely different. Returns the recipe in
+// the app's shape with source "deepseek", or null on any failure.
+export async function suggestAIDish({ name, region, subregion, exclude = [], stronglyDifferent = false }) {
   const context = [name, region, subregion].filter(Boolean).join(" · ");
-  const prompt = [
+  const lines = [
     `Pick one specific, authentic dish for ${context}.`,
     "Return ONLY valid JSON with exactly these keys:",
     '{"name": string, "ingredients": string[], "instructions": string}.',
-    "Prefer a well-known national dish with a short, accurate method.",
-    "Do not include any text outside the JSON.",
-  ].join(" ");
+    "Choose a dish that is true to the local cuisine. Use a less famous, still-common dish to vary the selection.",
+  ];
+  if (stronglyDifferent) {
+    lines.push("The user found the earlier suggestions repetitive. Avoid famous/obvious choices and pick a clearly DIFFERENT regional dish.");
+  }
+  if (exclude.length) {
+    lines.push(`Already shown to the user (AVOID returning any of these exact dishes): ${exclude.join(", ")}.`);
+  } else {
+    lines.push("(No prior dishes shown yet — pick the most emblematic dish.)");
+  }
+  lines.push("Do not include any text outside the JSON.");
+  const prompt = lines.join(" ");
 
-  const text = await chat(prompt);
+  // Higher temperature to reduce repetition, plus a random jitter to vary the
+  // model's pick across calls for the same country.
+  const temperature = 1.1 + (Math.random() * 0.3);
+  const text = await chat(prompt, undefined, 2000, temperature);
   const json = extractJson(text);
   if (!json) return null;
   const dishName = String(json.name || "").trim();

@@ -321,7 +321,7 @@ export default function App() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 pb-24 lg:pb-0">
         {/* View switcher */}
         <nav className="mt-2 inline-flex self-center rounded-full border border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/70 dark:bg-cq-darkSurface2/60 p-1 text-sm font-medium">
           <button
@@ -459,6 +459,25 @@ export default function App() {
                 </div>
               )}
             </section>
+          </div>
+        )}
+
+        {/* Mobile-only persistent action bar: keeps the recipe-generate actions
+            on screen even when the country info/recipe is scrolled out of view. */}
+        {country && (
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-cq-border/70 dark:border-cq-darkBorder/70 bg-cq-surface/90 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
+            <div className="mx-auto flex max-w-md items-center gap-3">
+              <CQButton
+                onClick={pickRandomRecipe}
+                disabled={!country || loading}
+                className="flex-1"
+              >
+                {loading ? "Loading…" : `Pick Recipe${recipes.length ? ` (${recipes.length})` : ""}`}
+              </CQButton>
+              <CQButton variant="secondary" onClick={newAiIdea} disabled={loading} className="flex-1">
+                {loading ? "AI drafting…" : "AI Idea"}
+              </CQButton>
+            </div>
           </div>
         )}
       </div>

@@ -161,6 +161,17 @@ schtasks /Query /TN "CulinaryQuestCaddy" /V /FO LIST
 
 - **"Run As User: SYSTEM"** and **"Logon Mode: Interactive/Background"** confirm
   it will run without a sign-in.
+
+> **Backups under SYSTEM (`CQ_BACKUP_DIR`):** the server now runs as SYSTEM, so
+> the backup folder in `.env` must be a **plain absolute path** —
+> e.g. `CQ_BACKUP_DIR=C:\Users\<you>\OneDrive\CulinaryQuestBackups`.
+> Do **not** use `%OneDrive%` / `%USERPROFILE%` in the path: those expand to
+> *SYSTEM's* profile, not yours, so backups would go to the wrong place or fail.
+> Note also that OneDrive's sync client runs in your user session — SYSTEM writes
+> the file locally, and it uploads to the cloud once your session syncs it.
+> A **user-mapped network drive** (`Z:\`) won't be visible to SYSTEM either; use
+> a UNC path (`\\server\share\...`) instead.
+
 - The app task logs to **`deploy\server.log`** (node stdout/stderr + a startup
   line). If the app doesn't come up after a reboot, read that log first.
 - `start-server.bat` resolves `node.exe` explicitly (PATH, then

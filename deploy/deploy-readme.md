@@ -123,9 +123,55 @@ Open **`deploy\install-caddy.bat`** as Administrator. It will:
 Register two tasks so everything comes back after a reboot:
 
 ```bat
-deploy\install-scheduled-task.bat     :: starts npm start (the app) at boot
+deploy\install-scheduled-task.bat     :: starts the app (node server.mjs) at boot
 deploy\install-caddy-auto-start.bat   :: starts Caddy (the proxy) at boot
 ```
+
+### Why these run as SYSTEM (important)
+
+Both installers create the task with **`/RU "SYSTEM"`**:
+
+```bat
+schtasks /Create /TN "CulinaryQuest" ... /SC ONSTART /RU "SYSTEM" /RL HIGHEST /F
+```
+
+That parameter is what makes the task start **at boot with no user logged in**.
+If you create a task *without* an explicit `/RU`, Windows defaults to
+**"run only when the user is logged on"** — so after a reboot nothing starts
+until someone signs in (which looks like "the app didn't come back after a
+restart"). `SYSTEM` needs no password and avoids that trap.
+
+> **Upgrading an existing (broken) install:** if you registered the tasks before
+> this fix, delete and re-create them (admin):
+>
+> ```bat
+> schtasks /Delete /TN "CulinaryQuest" /F
+> schtasks /Delete /TN "CulinaryQuestCaddy" /F
+> deploy\install-scheduled-task.bat
+> deploy\install-caddy-auto-start.bat
+> ```
+
+### Verify / troubleshoot
+
+```bat
+:: See the task, its account, and last result
+schtasks /Query /TN "CulinaryQuest" /V /FO LIST
+schtasks /Query /TN "CulinaryQuestCaddy" /V /FO LIST
+```
+
+- **"Run As User: SYSTEM"** and **"Logon Mode: Interactive/Background"** confirm
+  it will run without a sign-in.
+- The app task logs to **`deploy\server.log`** (node stdout/stderr + a startup
+  line). If the app doesn't come up after a reboot, read that log first.
+- `start-server.bat` resolves `node.exe` explicitly (PATH, then
+  `C:\Program Files\nodejs`) and runs `node server.mjs` directly — it does not
+  rely on `npm`/the user PATH, which SYSTEM does not have.
+- Force a run right now to test without rebooting:
+
+  ```bat
+  schtasks /Run /TN "CulinaryQuest"
+  schtasks /Run /TN "CulinaryQuestCaddy"
+  ```
 
 ---
 

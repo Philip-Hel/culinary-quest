@@ -25,7 +25,10 @@ echo  Will register a boot-time task that runs:
 echo    %START_BAT%
 echo.
 
-schtasks /Create /TN "CulinaryQuest" /TR "\"%START_BAT%\"" /SC ONSTART /RL HIGHEST /F
+:: /RU "SYSTEM" is what makes this run at BOOT without anyone logged in.
+:: Without an explicit /RU, schtasks defaults to "run only when the user is
+:: logged on", so the server would NOT start after a reboot until sign-in.
+schtasks /Create /TN "CulinaryQuest" /TR "\"%START_BAT%\"" /SC ONSTART /RU "SYSTEM" /RL HIGHEST /F
 
 if %ERRORLEVEL% neq 0 (
     echo.

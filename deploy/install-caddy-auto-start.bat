@@ -25,7 +25,10 @@ if not exist "C:\Caddy\caddy.exe" (
 )
 
 echo  Registering a boot-time task that starts Caddy with your config...
-schtasks /Create /TN "CulinaryQuestCaddy" /TR "C:\Caddy\caddy.exe run --config C:\Caddy\Caddyfile" /SC ONSTART /RL HIGHEST /F
+:: /RU "SYSTEM" makes Caddy start at BOOT with no user logged in. Without it,
+:: schtasks defaults to "only when the user is logged on" and Caddy won't run
+:: after a reboot until sign-in.
+schtasks /Create /TN "CulinaryQuestCaddy" /TR "C:\Caddy\caddy.exe run --config C:\Caddy\Caddyfile" /SC ONSTART /RU "SYSTEM" /RL HIGHEST /F
 
 if %ERRORLEVEL% neq 0 (
     echo.
